@@ -5,7 +5,18 @@ Julia port of [Efficient Implementation of Marching Cubes' Cases with Topologica
 [Public article](http://thomas.lewiner.org/pdfs/marching_cubes_jgt.pdf).
 
 # C++ implementation
-Adapted to `Julia` from the original [c++ implementation](http://thomas.lewiner.org/srcs/marching_cubes_jgt.zip).
+
+Adapted to `Julia` (`1`-based indexing) from the original [c++ implementation](http://thomas.lewiner.org/srcs/marching_cubes_jgt.zip) (`0`-based indexing).
+
+# Tiny benchmark
+
+```bash
+$ g++ -O3 ply.c main.cpp MarchingCubes.cpp
+$ ./a.out
+Marching Cubes ran in 0.007834 secs.
+$ julia -e 'using BenchmarkTools, MarchingCubes; mc = MarchingCubes.test_scenario(); @btime march(mc)'
+  7.936 ms (0 allocations: 0 bytes)
+```
 
 # Original BibTeX
 
