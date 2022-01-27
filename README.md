@@ -18,7 +18,7 @@ $ julia
 julia> using BenchmarkTools, MarchingCubes
 julia> mc = MarchingCubes.scenario();
 julia> @btime march($mc)
-  7.936 ms (0 allocations: 0 bytes)
+  7.865 ms (0 allocations: 0 bytes)
 julia> @btime march_legacy($mc)
   9.268 ms (0 allocations: 0 bytes)
 julia> using PlyIO

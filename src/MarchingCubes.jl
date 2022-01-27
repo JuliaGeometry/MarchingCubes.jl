@@ -51,9 +51,7 @@ struct MC{F,I}
     tv::MVector{3,I}  # triangle buffer
     vtx::MVector{3,F}  # vertex buffer
     nrm::MVector{3,F}  # normal buffer
-    x_vert::Array{I,3}  # pre-computed vertex indices on the lower horizontal edge of each cube
-    y_vert::Array{I,3}  # pre-computed vertex indices on the lower longitudinal edge of each cube
-    z_vert::Array{I,3}  # pre-computed vertex indices on the lower vertical edge of each cube
+    vert_indices::Array{I,4}  # pre-computed vertex indices
     triangles::Vector{Triangle}  # output triangles
     vertices::Vector{Vertex{F}}  # output vertex positions
     normals::Vector{Normal{F}}  # output vertex normals
@@ -66,12 +64,10 @@ struct MC{F,I}
             zeros(Int, 3),
             zeros(F, 3),
             zeros(F, 3),
-            zeros(I, size(vol)),
-            zeros(I, size(vol)),
-            zeros(I, size(vol)),
+            zeros(I, (3, size(vol)...)),
             Triangle[],
-            Normal[],
             Vertex[],
+            Normal[],
         )
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
@@ -301,13 +297,13 @@ compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
         m.cube[4] = abs(c2) < eps(F) ? eps(F) : c2
         m.cube[5] = abs(c3) < eps(F) ? eps(F) : c3
         if m.cube[1] < 0
-            m.cube[2] > 0 && (m.x_vert[i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
-            m.cube[4] > 0 && (m.y_vert[i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
-            m.cube[5] > 0 && (m.z_vert[i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
+            m.cube[2] > 0 && (m.vert_indices[1, i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
+            m.cube[4] > 0 && (m.vert_indices[2, i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
+            m.cube[5] > 0 && (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         else
-            m.cube[2] < 0 && (m.x_vert[i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
-            m.cube[4] < 0 && (m.y_vert[i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
-            m.cube[5] < 0 && (m.z_vert[i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
+            m.cube[2] < 0 && (m.vert_indices[1, i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
+            m.cube[4] < 0 && (m.vert_indices[2, i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
+            m.cube[5] < 0 && (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         end
     end
     return
@@ -494,29 +490,29 @@ add_triangle(m, i, j, k, tri, n, v12 = 0) = begin
         tr = tri[t]
         id = (t - 1) % 3 + 1
         m.tv[id] = tv = if tr == 1
-            m.x_vert[i, j, k]
+            m.vert_indices[1, i, j, k]
         elseif tr == 2
-            m.y_vert[i+1, j, k]
+            m.vert_indices[2, i+1, j, k]
         elseif tr == 3
-            m.x_vert[i, j+1, k]
+            m.vert_indices[1, i, j+1, k]
         elseif tr == 4
-            m.y_vert[i, j, k]
+            m.vert_indices[2, i, j, k]
         elseif tr == 5
-            m.x_vert[i, j, k+1]
+            m.vert_indices[1, i, j, k+1]
         elseif tr == 6
-            m.y_vert[i+1, j, k+1]
+            m.vert_indices[2, i+1, j, k+1]
         elseif tr == 7
-            m.x_vert[i, j+1, k+1]
+            m.vert_indices[1, i, j+1, k+1]
         elseif tr == 8
-            m.y_vert[i, j, k+1]
+            m.vert_indices[2, i, j, k+1]
         elseif tr == 9
-            m.z_vert[i, j, k]
+            m.vert_indices[3, i, j, k]
         elseif tr == 10
-            m.z_vert[i+1, j, k]
+            m.vert_indices[3, i+1, j, k]
         elseif tr == 11
-            m.z_vert[i+1, j+1, k]
+            m.vert_indices[3, i+1, j+1, k]
         elseif tr == 12
-            m.z_vert[i, j+1, k]
+            m.vert_indices[3, i, j+1, k]
         else
             v12
         end
@@ -609,29 +605,29 @@ add_c_vertex(m, i, j, k) = begin
         m.vtx .= 0
         m.nrm .= 0
         # compute the average of the intersection points of the cube
-        (n = m.x_vert[i, j, k]) > 0 &&
+        (n = m.vert_indices[1, i, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.y_vert[i+1, j, k]) > 0 &&
+        (n = m.vert_indices[2, i+1, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.x_vert[i, j+1, k]) > 0 &&
+        (n = m.vert_indices[1, i, j+1, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.y_vert[i, j, k]) > 0 &&
+        (n = m.vert_indices[2, i, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.x_vert[i, j, k+1]) > 0 &&
+        (n = m.vert_indices[1, i, j, k+1]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.y_vert[i+1, j, k+1]) > 0 &&
+        (n = m.vert_indices[2, i+1, j, k+1]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.x_vert[i, j+1, k+1]) > 0 &&
+        (n = m.vert_indices[1, i, j+1, k+1]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.y_vert[i, j, k+1]) > 0 &&
+        (n = m.vert_indices[2, i, j, k+1]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.z_vert[i, j, k]) > 0 &&
+        (n = m.vert_indices[i, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.z_vert[i+1, j, k]) > 0 &&
+        (n = m.vert_indices[3, i+1, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.z_vert[i+1, j+1, k]) > 0 &&
+        (n = m.vert_indices[3, i+1, j+1, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.z_vert[i, j+1, k]) > 0 &&
+        (n = m.vert_indices[3, i, j+1, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
         m.vtx ./= u
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
