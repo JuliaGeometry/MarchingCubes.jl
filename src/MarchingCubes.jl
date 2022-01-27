@@ -31,7 +31,7 @@ const Normal{F} = SVector{3,F}
 const Triangle = SVector{3,Int}
 
 """
-    MC(dat::Array{F,3}, I::Type = Int)
+    MC(vol::Array{F,3}, I::Type = Int)
 
 # Description
 Structure to hold temporaries for the marching cube algorithm.
@@ -39,40 +39,41 @@ Vertices, normals and triangles are accessible using `m.vertices`, `m.normals` a
 1-based indexing is assumed.
 
 # Arguments
-    - `dat`: rank 3 array of floating values on which the Marching Cubes algorithm is applied.
+    - `vol`: rank 3 array of floats (volume) on which the Marching Cubes algorithm is applied.
     - `I`: Int32, Int64, ...: vertices / normals / triangles index `Integer` type.
 """
 struct MC{F,I}
-    nx::Int
-    ny::Int
-    nz::Int
-    dat::RefValue{Array{F,3}}
+    nx::Int  # height of the grid
+    ny::Int  # width of the grid
+    nz::Int  # depth of the grid
+    vol::RefValue{Array{F,3}}  # implicit function values sampled on the grid
     cube::MVector{8,F}  # values of the implicit function on the active cube
-    tv::MVector{3,Int}
+    tv::MVector{3,I}  # triangle buffer
     vtx::MVector{3,F}  # vertex buffer
     nrm::MVector{3,F}  # normal buffer
-    x_vert::Array{I,3}
-    y_vert::Array{I,3}
-    z_vert::Array{I,3}
-    triangles::Vector{Triangle}
-    vertices::Vector{Vertex{F}}
-    normals::Vector{Normal{F}}
-    MC(dat::Array{F,3}, I::Type{G} = Int) where {F,G<:Integer} = begin
+    x_vert::Array{I,3}  # pre-computed vertex indices on the lower horizontal edge of each cube
+    y_vert::Array{I,3}  # pre-computed vertex indices on the lower longitudinal edge of each cube
+    z_vert::Array{I,3}  # pre-computed vertex indices on the lower vertical edge of each cube
+    triangles::Vector{Triangle}  # output triangles
+    vertices::Vector{Vertex{F}}  # output vertex positions
+    normals::Vector{Normal{F}}  # output vertex normals
+
+    MC(vol::Array{F,3}, I::Type{G} = Int) where {F,G<:Integer} = begin
         m = new{F,I}(
-            size(dat)...,
-            Ref(dat),
+            size(vol)...,
+            Ref(vol),
             zeros(F, 8),
             zeros(Int, 3),
             zeros(F, 3),
             zeros(F, 3),
-            zeros(I, size(dat)),
-            zeros(I, size(dat)),
-            zeros(I, size(dat)),
+            zeros(I, size(vol)),
+            zeros(I, size(vol)),
+            zeros(I, size(vol)),
             Triangle[],
             Normal[],
             Vertex[],
         )
-        sz = size(dat) |> prod
+        sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
         sizehint!(m.vertices, nextpow(2, sz ÷ 2))
         sizehint!(m.normals, nextpow(2, sz ÷ 2))
@@ -84,12 +85,12 @@ end
     lut_entry(args...; kwargs...)
 
 # Description
-Cube sign representation
+Cube sign representation.
 """
-lut_entry(dat::Array{F,3}, cb, i, j, k, iso) where {F} = begin
+lut_entry(vol::Array{F,3}, cb, i, j, k, iso) where {F} = begin
     lut = UInt8(0)
     @inbounds for p ∈ 0:7
-        c = dat[i+((p⊻(p>>1))&1), j+((p>>1)&1), k+((p>>2)&1)] - iso
+        c = vol[i+((p⊻(p>>1))&1), j+((p>>1)&1), k+((p>>2)&1)] - iso
         abs(c) < eps(F) && (c = eps(F))
         c > 0 && (lut += (UInt8(1) << p))
         cb[p+1] = c
@@ -102,16 +103,23 @@ end
 
 # Decription
 Original Marching Cubes algorithm.
+
+# Arguments
+    - `m`: Marching Cubes data structure.
+    - `isovalue`: isosurface value.
 """
 march_legacy(m::MC{F}, isovalue::Number = 0) where {F} = begin
     empty!(m.triangles)
     empty!(m.vertices)
     empty!(m.normals)
-    dat = m.dat[]
+
+    vol = m.vol[]
     iso = F(isovalue)
-    compute_intersection_points(m, dat, m.cube, iso)
+
+    compute_intersection_points(m, vol, m.cube, iso)
+
     @inbounds for k ∈ 1:m.nz-1, j ∈ 1:m.ny-1, i ∈ 1:m.nx-1
-        lut = lut_entry(dat, m.cube, i, j, k, iso)
+        lut = lut_entry(vol, m.cube, i, j, k, iso)
         nt = 0
         while casesClassic[lut][3nt+1] > 0
             nt += 1
@@ -125,16 +133,23 @@ end
 
 # Decription
 Enhanced topologically controlled Marching Cubes algorithm.
+
+Arguments
+    - `m`: Marching Cubes data structure.
+    - `isovalue`: isosurface value.
 """
 march(m::MC{F}, isovalue::Number = 0) where {F} = begin
     empty!(m.triangles)
     empty!(m.vertices)
     empty!(m.normals)
-    dat = m.dat[]
+
+    vol = m.vol[]
     iso = F(isovalue)
-    compute_intersection_points(m, dat, m.cube, iso)
+
+    compute_intersection_points(m, vol, m.cube, iso)
+
     @inbounds for k ∈ 1:m.nz-1, j ∈ 1:m.ny-1, i ∈ 1:m.nx-1
-        lut = lut_entry(dat, m.cube, i, j, k, iso)
+        lut = lut_entry(vol, m.cube, i, j, k, iso)
 
         case = cases[lut][1]  # case of the active cube in [1; 16]
         cfg = cases[lut][2]  # configuration of the active cube
@@ -275,24 +290,24 @@ end
 # Description
 Computes almost all the vertices of the mesh by interpolation along the cubes edges.
 """
-compute_intersection_points(m::MC{F}, dat, cb, iso) where {F} = begin
-    @inbounds for k ∈ axes(dat, 3), j ∈ axes(dat, 2), i ∈ axes(dat, 1)
-        c0 = dat[i, j, k]
-        c1 = i < m.nx ? dat[i+1, j, k] - iso : c0
-        c2 = j < m.ny ? dat[i, j+1, k] - iso : c0
-        c3 = k < m.nz ? dat[i, j, k+1] - iso : c0
+compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
+    @inbounds for k ∈ axes(vol, 3), j ∈ axes(vol, 2), i ∈ axes(vol, 1)
+        c0 = vol[i, j, k]
+        c1 = i < m.nx ? vol[i+1, j, k] - iso : c0
+        c2 = j < m.ny ? vol[i, j+1, k] - iso : c0
+        c3 = k < m.nz ? vol[i, j, k+1] - iso : c0
         m.cube[1] = abs(c0) < eps(F) ? eps(F) : c0
         m.cube[2] = abs(c1) < eps(F) ? eps(F) : c1
         m.cube[4] = abs(c2) < eps(F) ? eps(F) : c2
         m.cube[5] = abs(c3) < eps(F) ? eps(F) : c3
         if m.cube[1] < 0
-            m.cube[2] > 0 && (m.x_vert[i, j, k] = add_x_vertex(m, dat, cb, i, j, k))
-            m.cube[4] > 0 && (m.y_vert[i, j, k] = add_y_vertex(m, dat, cb, i, j, k))
-            m.cube[5] > 0 && (m.z_vert[i, j, k] = add_z_vertex(m, dat, cb, i, j, k))
+            m.cube[2] > 0 && (m.x_vert[i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
+            m.cube[4] > 0 && (m.y_vert[i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
+            m.cube[5] > 0 && (m.z_vert[i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         else
-            m.cube[2] < 0 && (m.x_vert[i, j, k] = add_x_vertex(m, dat, cb, i, j, k))
-            m.cube[4] < 0 && (m.y_vert[i, j, k] = add_y_vertex(m, dat, cb, i, j, k))
-            m.cube[5] < 0 && (m.z_vert[i, j, k] = add_z_vertex(m, dat, cb, i, j, k))
+            m.cube[2] < 0 && (m.x_vert[i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
+            m.cube[4] < 0 && (m.y_vert[i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
+            m.cube[5] < 0 && (m.z_vert[i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         end
     end
     return
@@ -517,25 +532,25 @@ end
 # Description
 Interpolates the horizontal gradient of the implicit function at the lower vertex of the specified cube.
 """
-@inline ∇x(dat, i, j, k, nx) = @inbounds(
+@inline ∇x(vol, i, j, k, nx) = @inbounds(
     i > 1 ?
-    (i < nx ? (dat[i+1, j, k] - dat[i-1, j, k]) / 2 : (dat[i, j, k] - dat[i-1, j, k])) :
-    (dat[i+1, j, k] - dat[i, j, k])
+    (i < nx ? (vol[i+1, j, k] - vol[i-1, j, k]) / 2 : (vol[i, j, k] - vol[i-1, j, k])) :
+    (vol[i+1, j, k] - vol[i, j, k])
 )
 
-@inline ∇y(dat, i, j, k, ny) = @inbounds(
+@inline ∇y(vol, i, j, k, ny) = @inbounds(
     j > 1 ?
-    (j < ny ? (dat[i, j+1, k] - dat[i, j-1, k]) / 2 : (dat[i, j, k] - dat[i, j-1, k])) :
-    (dat[i, j+1, k] - dat[i, j, k])
+    (j < ny ? (vol[i, j+1, k] - vol[i, j-1, k]) / 2 : (vol[i, j, k] - vol[i, j-1, k])) :
+    (vol[i, j+1, k] - vol[i, j, k])
 )
 
-@inline ∇z(dat, i, j, k, nz) = @inbounds(
+@inline ∇z(vol, i, j, k, nz) = @inbounds(
     k > 1 ?
-    (k < nz ? (dat[i, j, k+1] - dat[i, j, k-1]) / 2 : (dat[i, j, k] - dat[i, j, k-1])) :
-    (dat[i, j, k+1] - dat[i, j, k])
+    (k < nz ? (vol[i, j, k+1] - vol[i, j, k-1]) / 2 : (vol[i, j, k] - vol[i, j, k-1])) :
+    (vol[i, j, k+1] - vol[i, j, k])
 )
 
-@inline norm(v) = @inbounds √(v[1]^2 + v[2]^2 + v[3]^2)
+@inline norm(x) = @inbounds √(x[1]^2 + x[2]^2 + x[3]^2)
 
 """
     add_x_vertex(args...; kwargs...)
@@ -543,39 +558,39 @@ Interpolates the horizontal gradient of the implicit function at the lower verte
 # Description
 Adds a vertex on the current horizontal edge.
 """
-add_x_vertex(m::MC{F}, dat, cb, i, j, k) where {F} = begin
+add_x_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
     @inbounds begin
         u = cb[1] / (cb[1] - cb[2])
-        m.nrm[1] = (1 - u) * ∇x(dat, i, j, k, m.nx) + u * ∇x(dat, i + 1, j, k, m.nx)
-        m.nrm[2] = (1 - u) * ∇y(dat, i, j, k, m.ny) + u * ∇y(dat, i + 1, j, k, m.ny)
-        m.nrm[3] = (1 - u) * ∇z(dat, i, j, k, m.nz) + u * ∇z(dat, i + 1, j, k, m.nz)
-        (n = norm(m.nrm)) > eps(F) && (m.nrm ./= n)
+        m.nrm[1] = (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i + 1, j, k, m.nx)
+        m.nrm[2] = (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i + 1, j, k, m.ny)
+        m.nrm[3] = (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i + 1, j, k, m.nz)
+        (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i + u, j, k))
     push!(m.normals, Normal(m.nrm...))
     length(m.vertices)
 end
 
-add_y_vertex(m::MC{F}, dat, cb, i, j, k) where {F} = begin
+add_y_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
     @inbounds begin
-        u = cb[1] / (cb[1] - cb[3])
-        m.nrm[1] = (1 - u) * ∇x(dat, i, j, k, m.nx) + u * ∇x(dat, i, j + 1, k, m.nx)
-        m.nrm[2] = (1 - u) * ∇y(dat, i, j, k, m.ny) + u * ∇y(dat, i, j + 1, k, m.ny)
-        m.nrm[3] = (1 - u) * ∇z(dat, i, j, k, m.nz) + u * ∇z(dat, i, j + 1, k, m.nz)
-        (n = norm(m.nrm)) > eps(F) && (m.nrm ./= n)
+        u = cb[1] / (cb[1] - cb[4])
+        m.nrm[1] = (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i, j + 1, k, m.nx)
+        m.nrm[2] = (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i, j + 1, k, m.ny)
+        m.nrm[3] = (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i, j + 1, k, m.nz)
+        (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i, j + u, k))
     push!(m.normals, Normal(m.nrm...))
     length(m.vertices)
 end
 
-add_z_vertex(m::MC{F}, dat, cb, i, j, k) where {F} = begin
+add_z_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
     @inbounds begin
-        u = cb[1] / (cb[1] - cb[4])
-        m.nrm[1] = (1 - u) * ∇x(dat, i, j, k, m.nx) + u * ∇x(dat, i, j, k + 1, m.nx)
-        m.nrm[2] = (1 - u) * ∇y(dat, i, j, k, m.ny) + u * ∇y(dat, i, j, k + 1, m.ny)
-        m.nrm[3] = (1 - u) * ∇z(dat, i, j, k, m.nz) + u * ∇z(dat, i, j, k + 1, m.nz)
-        (n = norm(m.nrm)) > eps(F) && (m.nrm ./= n)
+        u = cb[1] / (cb[1] - cb[5])
+        m.nrm[1] = (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i, j, k + 1, m.nx)
+        m.nrm[2] = (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i, j, k + 1, m.ny)
+        m.nrm[3] = (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i, j, k + 1, m.nz)
+        (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i, j, k + u))
     push!(m.normals, Normal(m.nrm...))
@@ -590,97 +605,42 @@ Adds a vertex inside the current cube.
 """
 add_c_vertex(m, i, j, k) = begin
     u = 0
-    @inbounds begin  # computes the average of the intersection points of the cube
+    @inbounds begin
         m.vtx .= 0
         m.nrm .= 0
-        (id = m.x_vert[i, j, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.y_vert[i+1, j, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.x_vert[i, j+1, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.y_vert[i, j, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.x_vert[i, j, k+1]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.y_vert[i+1, j, k+1]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.x_vert[i, j+1, k+1]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.y_vert[i, j, k+1]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.z_vert[i, j, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.z_vert[i+1, j, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.z_vert[i+1, j+1, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
-        (id = m.z_vert[i, j+1, k]) > 0 &&
-            (u += 1; m.vtx .+= m.vertices[id]; m.nrm .+= m.normals[id])
+        # compute the average of the intersection points of the cube
+        (n = m.x_vert[i, j, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.y_vert[i+1, j, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.x_vert[i, j+1, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.y_vert[i, j, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.x_vert[i, j, k+1]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.y_vert[i+1, j, k+1]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.x_vert[i, j+1, k+1]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.y_vert[i, j, k+1]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.z_vert[i, j, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.z_vert[i+1, j, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.z_vert[i+1, j+1, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
+        (n = m.z_vert[i, j+1, k]) > 0 &&
+            (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
         m.vtx ./= u
-        (n = norm(m.nrm)) > eps(F) && (m.nrm ./= n)
+        (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(m.vtx...))
     push!(m.normals, Normal(m.nrm...))
     length(m.vertices)
 end
 
-test_scenario(nx = 60, ny = 60, nz = 60, case = :torus2) = begin
-    dat = zeros(Float32, nx, ny, nz)
-
-    sx, sy, sz = size(dat) ./ 16
-    tx = nx / 2sx
-    ty = ny / 2sy + 1.5
-    tz = nz / 2sz
-
-    r = 1.85
-    R = 4
-
-    cushin(x, y, z) = (
-        z^2 * x^2 - z^4 - 2z * x^2 + 2z^3 + x^2 - z^2 - (x^2 - z) * (x^2 - z) - y^4 - 2x^2 * y^2 - y^2 * z^2 +
-        2y^2 * z +
-        y^2
-    )
-
-    torus2(x, y, z) =
-        (
-            (x^2 + y^2 + z^2 + R^2 - r^2) * (x^2 + y^2 + z^2 + R^2 - r^2) -
-            4R^2 * (x^2 + y^2)
-        ) * (
-            (x^2 + (y + R) * (y + R) + z^2 + R^2 - r^2) *
-            (x^2 + (y + R) * (y + R) + z^2 + R^2 - r^2) -
-            4R^2 * ((y + R) * (y + R) + z^2)
-        )
-
-    sphere(x, y, z) = (
-        ((x - 2) * (x - 2) + (y - 2) * (y - 2) + (z - 2) * (z - 2) - 1) *
-        ((x + 2) * (x + 2) + (y - 2) * (y - 2) + (z - 2) * (z - 2) - 1) *
-        ((x - 2) * (x - 2) + (y + 2) * (y + 2) + (z - 2) * (z - 2) - 1)
-    )
-
-    plane(x, y, z) = x + y + z - 3
-
-    cassini(x, y, z) = (
-        (x^2 + y^2 + z^2 + 0.45^2) * (x^2 + y^2 + z^2 + 0.45^2) -
-        16 * 0.45^2 * (x^2 + z^2) - 0.5^2
-    )
-
-    blooby(x, y, z) = x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + 11.8
-
-    callback = (;
-        cushin = cushin,
-        torus2 = torus2,
-        sphere = sphere,
-        plane = plane,
-        cassini = cassini,
-        blooby = blooby,
-    )[case]
-
-    for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
-        dat[i, j, k] = callback(i / sx - tx, j / sy - ty, k / sz - tz)
-    end
-
-    MC(dat, Int32)
-end
+include("example.jl")
 
 end

@@ -3,12 +3,13 @@ using MarchingCubes
 using Test
 
 @testset "march" begin
-    mc = MarchingCubes.test_scenario()
+    mc = MarchingCubes.scenario()
 
-    @btime march($mc)
-    @show length(mc.vertices) length(mc.triangles)
+    march(mc)
+    @test length(mc.vertices) == 11_333
+    @test length(mc.triangles) == 22_620
 
-    @btime march_legacy($mc)
-    @show length(mc.vertices) length(mc.triangles)
-
+    march_legacy(mc)
+    @test length(mc.vertices) == 11_333
+    @test length(mc.triangles) == 22_732
 end
