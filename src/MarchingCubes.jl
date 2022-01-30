@@ -31,16 +31,20 @@ const Normal{F} = SVector{3,F}
 const Triangle = SVector{3,Int}
 
 """
-    MC(vol::Array{F,3}, I::Type = Int)
+    MC(vol::Array{F,3}, I::Type = Int; x = [], y = [], z = [])
 
 # Description
-Structure to hold temporaries for the marching cube algorithm.
+Structure to hold temporaries and output of the marching cubes algorithm.
 Vertices, normals and triangles are accessible using `m.vertices`, `m.normals` and `m.triangles`.
 1-based indexing is assumed.
+Optionally, pass `x`, `y`, `z` to normalize the vertices coordinates instead of `1:n{x,y,z}`.
 
 # Arguments
     - `vol`: rank 3 array of floats (volume) on which the Marching Cubes algorithm is applied.
     - `I`: Int32, Int64, ...: vertices / normals / triangles index `Integer` type.
+    - `x` normalize vertex.x to the coordinates of `x`.
+    - `y` normalize vertex.y to the coordinates of `y`.
+    - `z` normalize vertex.z to the coordinates of `z`.
 """
 struct MC{F,I}
     nx::Int  # height of the grid
@@ -55,8 +59,17 @@ struct MC{F,I}
     triangles::Vector{Triangle}  # output triangles
     vertices::Vector{Vertex{F}}  # output vertex positions
     normals::Vector{Normal{F}}  # output vertex normals
+    x::RefValue{Vector{F}}
+    y::RefValue{Vector{F}}
+    z::RefValue{Vector{F}}
 
-    MC(vol::Array{F,3}, I::Type{G} = Int) where {F,G<:Integer} = begin
+    MC(
+        vol::Array{F,3},
+        I::Type{G} = Int;
+        x::Union{Nothing,Vector{F}} = F[],
+        y::Union{Nothing,Vector{F}} = F[],
+        z::Union{Nothing,Vector{F}} = F[],
+    ) where {F,G<:Integer} = begin
         m = new{F,I}(
             size(vol)...,
             Ref(vol),
@@ -68,6 +81,9 @@ struct MC{F,I}
             Triangle[],
             Vertex[],
             Normal[],
+            Ref(x),
+            Ref(y),
+            Ref(z),
         )
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
@@ -268,15 +284,31 @@ march(m::MC{F}, isovalue::Number = 0) where {F} = begin
                 end
             elseif sc ≥ 27 && sc ≤ 38  # 13.3
                 add_triangle(m, i, j, k, tiling13_3_[cfg][sc-26], 10, add_c_vertex(m, i, j, k))
-            elseif sc ≥ 39 && sc ≤ 45  # 13.2
+            elseif sc ≥ 39 && sc ≤ 44  # 13.2
                 add_triangle(m, i, j, k, tiling13_2_[cfg][sc-38], 6)
+            elseif sc == 45  # 13.1
+                add_triangle(m, i, j, k, tiling13_1_[cfg], 4)
             elseif sc > 45
-                throw(error("Marching Cubes: Impossible case 13?"))
+                @error "Impossible case 13 ?"
             end
         elseif case == 15
             add_triangle(m, i, j, k, tiling14[cfg], 4)
         end
     end
+
+    if length(m.x[]) > 0 && length(m.y[]) > 0 && length(m.z[]) > 0
+        mx, Mx = extrema(m.x[])
+        my, My = extrema(m.y[])
+        mz, Mz = extrema(m.z[])
+        scl =
+            @SVector([Mx - mx, My - my, Mz - mz]) ./
+            @SVector([m.nx - 1, m.ny - 1, m.nz - 1])
+        off = @SVector([mx, my, mz])
+        for (n, v) in enumerate(m.vertices)
+            m.vertices[n] = Vertex(off .+ (v .- 1) .* scl)
+        end
+    end
+
     return
 end
 
@@ -297,13 +329,19 @@ compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
         m.cube[4] = abs(c2) < eps(F) ? eps(F) : c2
         m.cube[5] = abs(c3) < eps(F) ? eps(F) : c3
         if m.cube[1] < 0
-            m.cube[2] > 0 && (m.vert_indices[1, i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
-            m.cube[4] > 0 && (m.vert_indices[2, i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
-            m.cube[5] > 0 && (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
+            m.cube[2] > 0 &&
+                (m.vert_indices[1, i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
+            m.cube[4] > 0 &&
+                (m.vert_indices[2, i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
+            m.cube[5] > 0 &&
+                (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         else
-            m.cube[2] < 0 && (m.vert_indices[1, i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
-            m.cube[4] < 0 && (m.vert_indices[2, i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
-            m.cube[5] < 0 && (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
+            m.cube[2] < 0 &&
+                (m.vert_indices[1, i, j, k] = add_x_vertex(m, vol, cb, i, j, k))
+            m.cube[4] < 0 &&
+                (m.vert_indices[2, i, j, k] = add_y_vertex(m, vol, cb, i, j, k))
+            m.cube[5] < 0 &&
+                (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         end
     end
     return
@@ -317,6 +355,7 @@ Tests if the components of the tesselation of the cube should be connected throu
 """
 test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
     test = 0
+    At = Bt = Ct = Dt = T(0)
     @inbounds begin
         if case == 5 || case == 11
             a = (cb[5] - cb[1]) * (cb[7] - cb[3]) - (cb[8] - cb[4]) * (cb[6] - cb[2])
@@ -344,7 +383,6 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
             else
                 0
             end
-            At = 0
             if edge == 1
                 t = cb[1] / (cb[1] - cb[2])
                 Bt = cb[4] + (cb[3] - cb[4]) * t
@@ -406,11 +444,10 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
                 Ct = cb[2] + (cb[6] - cb[2]) * t
                 Dt = cb[1] + (cb[5] - cb[1]) * t
             else
-                throw(throw(error("Invalid edge $edge")))
+                @error "Invalid edge $edge"
             end
-
         else
-            throw(throw(error("Invalid ambiguous case $case")))
+            @error "Invalid ambiguous case $case"
         end
     end
 
@@ -418,6 +455,7 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
     Bt ≥ 0 && (test += 2)
     Ct ≥ 0 && (test += 4)
     Dt ≥ 0 && (test += 8)
+
     return if test == 6 || test == 8 || test == 9 || test == 12 || (test ≥ 0 && test ≤ 4)
         s > 0
     elseif test == 5
@@ -468,7 +506,7 @@ test_face(cb::MVector{N,T}, face) where {N,T} = begin
             C = cb[7]
             D = cb[6]
         else
-            throw(error("Invalid face code $face"))
+            @error "Invalid face code $face"
         end
     end
     abs(A * C - B * D) < eps(T) ? face ≥ 0 : face * A * (A * C - B * D) ≥ 0  # face and A invert signs
@@ -517,7 +555,7 @@ add_triangle(m, i, j, k, tri, n, v12 = 0) = begin
             v12
         end
         @assert tv > 0
-        id == 3 && push!(m.triangles, Triangle(m.tv...))
+        id == 3 && push!(m.triangles, Triangle(m.tv))
     end
     return
 end
@@ -563,7 +601,7 @@ add_x_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i + u, j, k))
-    push!(m.normals, Normal(m.nrm...))
+    push!(m.normals, Normal(m.nrm))
     length(m.vertices)
 end
 
@@ -576,7 +614,7 @@ add_y_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i, j + u, k))
-    push!(m.normals, Normal(m.nrm...))
+    push!(m.normals, Normal(m.nrm))
     length(m.vertices)
 end
 
@@ -589,7 +627,7 @@ add_z_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i, j, k + u))
-    push!(m.normals, Normal(m.nrm...))
+    push!(m.normals, Normal(m.nrm))
     length(m.vertices)
 end
 
@@ -599,7 +637,7 @@ end
 # Description
 Adds a vertex inside the current cube.
 """
-add_c_vertex(m, i, j, k) = begin
+add_c_vertex(m::MC{F}, i, j, k) where {F} = begin
     u = 0
     @inbounds begin
         m.vtx .= 0
@@ -621,7 +659,7 @@ add_c_vertex(m, i, j, k) = begin
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
         (n = m.vert_indices[2, i, j, k+1]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
-        (n = m.vert_indices[i, j, k]) > 0 &&
+        (n = m.vert_indices[3, i, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
         (n = m.vert_indices[3, i+1, j, k]) > 0 &&
             (u += 1; m.vtx .+= m.vertices[n]; m.nrm .+= m.normals[n])
@@ -632,8 +670,8 @@ add_c_vertex(m, i, j, k) = begin
         m.vtx ./= u
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
-    push!(m.vertices, Vertex(m.vtx...))
-    push!(m.normals, Normal(m.nrm...))
+    push!(m.vertices, Vertex(m.vtx))
+    push!(m.normals, Normal(m.nrm))
     length(m.vertices)
 end
 

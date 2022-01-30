@@ -51,21 +51,24 @@ end
 
 output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
     ply = PlyIO.Ply()
-    push!(ply, PlyIO.PlyElement(
-        "vertex",
-        PlyIO.ArrayProperty("x", Float32[v[1] - 1 for v ∈ m.vertices]),
-        PlyIO.ArrayProperty("y", Float32[v[2] - 1 for v ∈ m.vertices]),
-        PlyIO.ArrayProperty("z", Float32[v[3] - 1 for v ∈ m.vertices]),
-        PlyIO.ArrayProperty("nx", Float32[n[1] for n ∈ m.normals]),
-        PlyIO.ArrayProperty("ny", Float32[n[2] for n ∈ m.normals]),
-        PlyIO.ArrayProperty("nz", Float32[n[3] for n ∈ m.normals]),
-    ))
+    push!(
+        ply,
+        PlyIO.PlyElement(
+            "vertex",
+            PlyIO.ArrayProperty("x", Float32[v[1] - 1 for v ∈ m.vertices]),
+            PlyIO.ArrayProperty("y", Float32[v[2] - 1 for v ∈ m.vertices]),
+            PlyIO.ArrayProperty("z", Float32[v[3] - 1 for v ∈ m.vertices]),
+            PlyIO.ArrayProperty("nx", Float32[n[1] for n ∈ m.normals]),
+            PlyIO.ArrayProperty("ny", Float32[n[2] for n ∈ m.normals]),
+            PlyIO.ArrayProperty("nz", Float32[n[3] for n ∈ m.normals]),
+        ),
+    )
     vertex_indices = PlyIO.ListProperty("vertex_indices", UInt8, Int32)
     for i ∈ eachindex(m.triangles)
-       push!(vertex_indices, m.triangles[i] .- 1)
+        push!(vertex_indices, m.triangles[i] .- 1)
     end
     push!(ply, PlyIO.PlyElement("face", vertex_indices))
 
-    PlyIO.save_ply(ply, fn, ascii=true)
+    PlyIO.save_ply(ply, fn, ascii = true)
     return
 end
