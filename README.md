@@ -14,7 +14,7 @@ Adapted to `Julia` (`1`-based indexing) from the original [c++ implementation](h
 $ g++ -O3 ply.c main.cpp MarchingCubes.cpp
 $ ./a.out
 Marching Cubes ran in 0.007834 secs.
-$ julia
+$ julia --check-bounds=no
 julia> using BenchmarkTools, MarchingCubes
 julia> mc = MarchingCubes.scenario();
 julia> @btime march($mc)
