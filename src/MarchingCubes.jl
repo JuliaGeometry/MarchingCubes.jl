@@ -37,11 +37,11 @@ const Triangle = SVector{3,Int}
 Structure to hold temporaries and output of the marching cubes algorithm.
 Vertices, normals and triangles are accessible using `m.vertices`, `m.normals` and `m.triangles`.
 1-based indexing is assumed.
-Optionally, pass `x`, `y`, `z` to normalize the vertices coordinates instead of `1:n{x,y,z}`.
+Optionally, pass `x`, `y`, `z` to normalize the vertices coordinates instead of `1:nx`, `1:ny` and `1:nz`.
 
 # Arguments
     - `vol`: rank 3 array of floats (volume) on which the Marching Cubes algorithm is applied.
-    - `I`: Int32, Int64, ...: vertices / normals / triangles index `Integer` type.
+    - `I`: Int32, Int64, ...: vertices / normals / triangles index `Integer` type (defaults to `Int`).
     - `x` normalize vertex.x to the coordinates of `x`.
     - `y` normalize vertex.y to the coordinates of `y`.
     - `z` normalize vertex.z to the coordinates of `z`.
@@ -94,7 +94,7 @@ struct MC{F,I}
 end
 
 """
-    lut_entry(args...; kwargs...)
+    lut_entry(vol, cb, i, j, k, iso)
 
 # Description
 Cube sign representation.
@@ -144,7 +144,7 @@ end
     march(m::MC, isovalue::Number)
 
 # Decription
-Enhanced topologically controlled Marching Cubes algorithm.
+Topologically controlled Marching Cubes algorithm.
 
 Arguments
     - `m`: Marching Cubes data structure.
@@ -313,7 +313,7 @@ march(m::MC{F}, isovalue::Number = 0) where {F} = begin
 end
 
 """
-    compute_intersection_points(args...; kwargs...)
+    compute_intersection_points(m::MC, vol, cb, iso)
 
 # Description
 Computes almost all the vertices of the mesh by interpolation along the cubes edges.
@@ -348,7 +348,7 @@ compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
 end
 
 """
-    test_interior(args...; kwargs...)
+    test_interior(case, cb, cfg, subcfg, s)
 
 # Description
 Tests if the components of the tesselation of the cube should be connected through the interior of the cube.
@@ -468,7 +468,7 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
 end
 
 """
-    test_face(args...; kwargs...)
+    test_face(cb, face)
 
 # Description
 Tests if the components of the tesselation of the cube should be connected by the interior of an ambiguous face.
@@ -513,17 +513,17 @@ test_face(cb::MVector{N,T}, face) where {N,T} = begin
 end
 
 """
-    add_triangle(args...; kwargs...)
+    add_triangle(m::MC, i, j, k, tri, n, v12 = 0)
 
 # Description
-Routine to add a triangle to the mesh
+Routine to add a triangle to the mesh.
 
 # Arguments
   - `trig` the code for the triangle as a sequence of edges index.
   - `n` the number of triangles to produce.
   - `v12` the index of the interior vertex to use, if necessary.
 """
-add_triangle(m, i, j, k, tri, n, v12 = 0) = begin
+add_triangle(m::MC, i, j, k, tri, n, v12 = 0) = begin
     @inbounds for t ∈ 1:3n
         tr = tri[t]
         id = (t - 1) % 3 + 1
@@ -587,7 +587,7 @@ Interpolates the horizontal gradient of the implicit function at the lower verte
 @inline norm(x) = @inbounds √(x[1]^2 + x[2]^2 + x[3]^2)
 
 """
-    add_x_vertex(args...; kwargs...)
+    add_x_vertex(m::MC, vol, cb, i, j, k)
 
 # Description
 Adds a vertex on the current horizontal edge.
@@ -632,10 +632,10 @@ add_z_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
 end
 
 """
-    add_c_vertex(args...; kwargs...)
+    add_c_vertex(m::MC, i, j, k)
 
 # Description
-Adds a vertex inside the current cube.
+Add a vertex inside the current cube.
 """
 add_c_vertex(m::MC{F}, i, j, k) where {F} = begin
     u = 0

@@ -26,7 +26,7 @@ julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be openend in a
 ```
 
 Test scenario output:
-![ParaView Torus](torus.png)
+![ParaView Torus](https://github.com/t-bltg/MarchingCubes.jl/raw/marchingcubes-docs/torus.png)
 
 # Original BibTeX
 
@@ -45,3 +45,7 @@ Test scenario output:
     url = {\url{http://thomas.lewiner.org/pdfs/marching_cubes_jgt.pdf}}
 }
 ```
+
+# License
+
+This code is free to use under the terms of the MIT license.

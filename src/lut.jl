@@ -18,7 +18,7 @@ LookUpTable for the MarchingCubes 33 Algorithm
  the invalid value -1.  For example: case[4] list the 2 triangles
  formed when cube[1] and cube[2] are inside of the surface, but the rest of
  the cube is not.
- *
+
  Cube description:
         8 ________ 7          _____7__             ________
        /|       /|          /|       /|          /|       /|
@@ -300,7 +300,7 @@ const cases = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling1 = (
   Int8.((  0,  8,  3 ) .+ 1),
   Int8.((  0,  1,  9 ) .+ 1),
@@ -329,7 +329,7 @@ const tiling1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling2 = (
   Int8.((  1,  8,  3,  9,  8,  1 ) .+ 1),
   Int8.((  0, 11,  2,  8, 11,  0 ) .+ 1),
@@ -370,7 +370,7 @@ const tiling2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test3 = (
   Int8(  5 ),
   Int8(  1 ),
@@ -407,7 +407,7 @@ const test3 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling3_1 = (
   Int8.((  0,  8,  3,  1,  2, 10 ) .+ 1),
   Int8.((  9,  5,  4,  0,  8,  3 ) .+ 1),
@@ -444,7 +444,7 @@ const tiling3_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling3_2 = (
   Int8.(( 10,  3,  2, 10,  8,  3, 10,  1,  0,  8, 10,  0 ) .+ 1),
   Int8.((  3,  4,  8,  3,  5,  4,  3,  0,  9,  5,  3,  9 ) .+ 1),
@@ -485,7 +485,7 @@ const tiling3_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test4 = (
   Int8( 7),
   Int8( 7),
@@ -506,7 +506,7 @@ const test4 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling4_1 = (
   Int8.((  0,  8,  3,  5, 10,  6 ) .+ 1),
   Int8.((  0,  1,  9, 11,  7,  6 ) .+ 1),
@@ -527,7 +527,7 @@ const tiling4_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling4_2 = (
   Int8.((  8,  5,  0,  5,  8,  6,  3,  6,  8,  6,  3, 10,  0, 10,  3, 10,  0,  5 ) .+ 1),
   Int8.((  9,  6,  1,  6,  9,  7,  0,  7,  9,  7,  0, 11,  1, 11,  0, 11,  1,  6 ) .+ 1),
@@ -548,7 +548,7 @@ const tiling4_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling5 = (
   Int8.((  2,  8,  3,  2, 10,  8, 10,  9,  8 ) .+ 1),
   Int8.((  1, 11,  2,  1,  9, 11,  9,  8, 11 ) .+ 1),
@@ -616,7 +616,7 @@ const tiling5 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test6 = (
   Int8.((  2,  7,  10 + 1 )),
   Int8.((  4,  7,  11 + 1 )),
@@ -677,7 +677,7 @@ const test6 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling6_1_1 = (
   Int8.((  6,  5, 10,  3,  1,  8,  9,  8,  1 ) .+ 1),
   Int8.(( 11,  7,  6,  9,  3,  1,  3,  9,  8 ) .+ 1),
@@ -738,7 +738,7 @@ const tiling6_1_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling6_1_2 = (
     Int8.(( 1, 12,  3, 12, 10,  3,  6,  3, 10,  3,  6,  8,  5,  8,  6,  8,  5, 12, 12,  9,  8,  1,  9, 12, 12,  5, 10 ) .+ 1),
     Int8.(( 1, 12,  3,  1, 11, 12, 11,  1,  6,  9,  6,  1,  6,  9,  7, 12,  7,  9,  9,  8, 12, 12,  8,  3, 11,  7, 12 ) .+ 1),
@@ -799,7 +799,7 @@ const tiling6_1_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling6_2 = (
   Int8.(( 1, 10,  3,  6,  3, 10,  3,  6,  8,  5,  8,  6,  8,  5,  9 ) .+ 1),
   Int8.(( 1, 11,  3, 11,  1,  6,  9,  6,  1,  6,  9,  7,  8,  7,  9 ) .+ 1),
@@ -873,7 +873,7 @@ const tiling6_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test7 = (
   Int8.((  1,  2,  5,  7,  1 + 1 )),
   Int8.((  3,  4,  5,  7,  3 + 1 )),
@@ -902,7 +902,7 @@ const test7 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling7_1 = (
   Int8.((  9,  5,  4, 10,  1,  2,  8,  3,  0 ) .+ 1),
   Int8.(( 11,  7,  6,  8,  3,  0, 10,  1,  2 ) .+ 1),
@@ -931,7 +931,7 @@ const tiling7_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling7_2 = (
   (
    Int8.((  1,  2, 10,  3,  4,  8,  4,  3,  5,  0,  5,  3,  5,  0,  9 ) .+ 1),
@@ -1023,7 +1023,7 @@ const tiling7_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling7_3 = (
   (
    Int8.(( 12,  2, 10, 12, 10,  5, 12,  5,  4, 12,  4,  8, 12,  8,  3, 12,  3,  0, 12,  0,  9, 12,  9,  1, 12,  1,  2 ) .+ 1),
@@ -1115,7 +1115,7 @@ const tiling7_3 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling7_4_1 = (
   Int8.((  3,  4,  8,  4,  3, 10,  2, 10,  3,  4, 10,  5,  9,  1,  0 ) .+ 1),
   Int8.((  1,  6, 10,  6,  1,  8,  0,  8,  1,  6,  8,  7, 11,  3,  2 ) .+ 1),
@@ -1144,7 +1144,7 @@ const tiling7_4_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling7_4_2 = (
   Int8.((   9,  4,  8,  4,  9,  5, 10,  5,  9,  1, 10,  9, 10,  1,  2,  0,  2,  1,  2,  0,  3,  8,  3,  0,  9,  8,  0 ) .+ 1),
   Int8.((  11,  6, 10,  6, 11,  7,  8,  7, 11,  3,  8, 11,  8,  3,  0,  2,  0,  3,  0,  2,  1, 10,  1,  2, 11, 10,  2 ) .+ 1),
@@ -1173,7 +1173,7 @@ const tiling7_4_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling8 = (
   Int8.(( 9,  8, 10, 10,  8, 11 ) .+ 1),
   Int8.(( 1,  5,  3,  3,  5,  7 ) .+ 1),
@@ -1192,7 +1192,7 @@ const tiling8 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling9 = (
   Int8.((  2, 10,  5,  3,  2,  5,  3,  5,  4,  3,  4,  8 ) .+ 1),
   Int8.((  4,  7, 11,  9,  4, 11,  9, 11,  2,  9,  2,  1 ) .+ 1),
@@ -1221,7 +1221,7 @@ const tiling9 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test10 = (
   Int8.(( 2,  4,  7 )),
   Int8.(( 5,  6,  7 )),
@@ -1240,7 +1240,7 @@ const test10 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling10_1_1 = (
   Int8.((  5, 10,  7, 11,  7, 10,  8,  1,  9,  1,  8,  3 ) .+ 1),
   Int8.((  1,  2,  5,  6,  5,  2,  4,  3,  0,  3,  4,  7 ) .+ 1),
@@ -1259,7 +1259,7 @@ const tiling10_1_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling10_1_1_ = (
   Int8.((  5,  9,  7,  8,  7,  9, 11,  1, 10,  1, 11,  3 ) .+ 1),
   Int8.((  3,  2,  7,  6,  7,  2,  4,  1,  0,  1,  4,  5 ) .+ 1),
@@ -1278,7 +1278,7 @@ const tiling10_1_1_ = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling10_1_2 = (
   Int8.((  3, 11,  7,  3,  7,  8,  9,  8,  7,  5,  9,  7,  9,  5, 10,  9, 10,  1,  3,  1, 10, 11,  3, 10 ) .+ 1),
   Int8.((  7,  6,  5,  7,  5,  4,  0,  4,  5,  1,  0,  5,  0,  1,  2,  0,  2,  3,  7,  3,  2,  6,  7,  2 ) .+ 1),
@@ -1297,7 +1297,7 @@ const tiling10_1_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling10_2 = (
   Int8.(( 12,  5,  9, 12,  9,  8, 12,  8,  3, 12,  3,  1, 12,  1, 10, 12, 10, 11, 12, 11,  7, 12,  7,  5 ) .+ 1),
   Int8.(( 12,  1,  0, 12,  0,  4, 12,  4,  7, 12,  7,  3, 12,  3,  2, 12,  2,  6, 12,  6,  5, 12,  5,  1 ) .+ 1),
@@ -1316,7 +1316,7 @@ const tiling10_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling10_2_ = (
   Int8.((  8,  7, 12,  9,  8, 12,  1,  9, 12,  3,  1, 12, 11,  3, 12, 10, 11, 12,  5, 10, 12,  7,  5, 12 ) .+ 1),
   Int8.((  4,  5, 12,  0,  4, 12,  3,  0, 12,  7,  3, 12,  6,  7, 12,  2,  6, 12,  1,  2, 12,  5,  1, 12 ) .+ 1),
@@ -1335,7 +1335,7 @@ const tiling10_2_ = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling11 = (
   Int8.(( 2, 10,  9,  2,  9,  7,  2,  7,  3,  7,  9,  4 ) .+ 1),
   Int8.(( 1,  6,  2,  1,  8,  6,  1,  9,  8,  8,  7,  6 ) .+ 1),
@@ -1369,7 +1369,7 @@ const tiling11 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test12 = (
   Int8.(( 4,  3,  7, 11 + 1 )),
   Int8.(( 3,  2,  7, 10 + 1 )),
@@ -1406,7 +1406,7 @@ const test12 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling12_1_1 = (
   Int8.((  7,  6, 11, 10,  3,  2,  3, 10,  8,  9,  8, 10 ) .+ 1),
   Int8.((  6,  5, 10,  9,  2,  1,  2,  9, 11,  8, 11,  9 ) .+ 1),
@@ -1443,7 +1443,7 @@ const tiling12_1_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling12_1_1_ = (
   Int8.((  3,  2, 11, 10,  7,  6,  7, 10,  8,  9,  8, 10 ) .+ 1),
   Int8.((  2,  1, 10,  9,  6,  5,  6,  9, 11,  8, 11,  9 ) .+ 1),
@@ -1480,7 +1480,7 @@ const tiling12_1_1_ = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling12_1_2 = (
   Int8.((  7,  3, 11,  3,  7,  8,  9,  8,  7,  6,  9,  7,  9,  6, 10,  2, 10,  6, 11,  2,  6,  2, 11,  3 ) .+ 1),
   Int8.((  6,  2, 10,  2,  6, 11,  8, 11,  6,  5,  8,  6,  8,  5,  9,  1,  9,  5, 10,  1,  5,  1, 10,  2 ) .+ 1),
@@ -1517,7 +1517,7 @@ const tiling12_1_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling12_2 = (
   Int8.((   9,  8, 12, 10,  9, 12,  2, 10, 12,  3,  2, 12, 11,  3, 12,  6, 11, 12,  7,  6, 12,  8,  7, 12 ) .+ 1),
   Int8.((   8, 11, 12,  9,  8, 12,  1,  9, 12,  2,  1, 12, 10,  2, 12,  5, 10, 12,  6,  5, 12, 11,  6, 12 ) .+ 1),
@@ -1554,7 +1554,7 @@ const tiling12_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling12_2_ = (
   Int8.(( 12,  2, 11, 12, 11,  7, 12,  7,  6, 12,  6, 10, 12, 10,  9, 12,  9,  8, 12,  8,  3, 12,  3,  2 ) .+ 1),
   Int8.(( 12,  1, 10, 12, 10,  6, 12,  6,  5, 12,  5,  9, 12,  9,  8, 12,  8, 11, 12, 11,  2, 12,  2,  1 ) .+ 1),
@@ -1593,7 +1593,7 @@ const tiling12_2_ = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const test13 = (
   Int8.(( 1, 2, 3, 4, 5, 6, 7 )),
   Int8.(( 2, 3, 4, 1, 5, 6, 7 )),
@@ -1610,7 +1610,7 @@ const test13 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const subcfg13 = (
   Int8(  0),
   Int8(  1),
@@ -1687,7 +1687,7 @@ const subcfg13 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_1 = (
   Int8.(( 11,  7,  6,  1,  2, 10,  8,  3,  0,  9,  5, 4 ) .+ 1),
   Int8.((  8,  4,  7,  2,  3, 11,  9,  0,  1, 10,  6, 5 ) .+ 1),
@@ -1702,7 +1702,7 @@ const tiling13_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_1_ = (
   Int8.(( 7,  4,  8, 11,  3,  2,  1,  0,  9,  5,  6, 10 ) .+ 1),
   Int8.(( 6,  7, 11, 10,  2,  1,  0,  3,  8,  4,  5,  9 ) .+ 1),
@@ -1717,7 +1717,7 @@ const tiling13_1_ = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_2 = (
   (
    Int8.(( 1,  2, 10, 11,  7,  6,  3,  4,  8,  4,  3,  5,  0,  5,  3,  5,  0,  9 ) .+ 1),
@@ -1745,7 +1745,7 @@ const tiling13_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_2_ = (
   (
    Int8.(( 10,  5,  6, 11,  3,  2,  7,  0,  8,  0,  7,  1,  4,  1,  7,  1,  4,  9 ) .+ 1),
@@ -1773,7 +1773,7 @@ const tiling13_2_ = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_3 = (
   (
    Int8.(( 11,  7,  6, 12,  2, 10, 12, 10,  5, 12,  5,  4, 12,  4,  8, 12,  8,  3, 12,  3,  0, 12,  0,  9, 12,  9,  1, 12,  1,  2 ) .+ 1),
@@ -1813,7 +1813,7 @@ const tiling13_3 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
   const tiling13_3_ = (
   (
    Int8.((  3,  2, 11,  8,  7, 12,  0,  8, 12,  1,  0, 12, 10,  1, 12,  6, 10, 12,  5,  6, 12,  9,  5, 12,  4,  9, 12,  7,  4, 12 ) .+ 1),
@@ -1853,7 +1853,7 @@ const tiling13_3 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_4 = (
   (
   Int8.(( 12,  2, 10, 12, 10,  5, 12,  5,  6, 12,  6, 11, 12, 11,  7, 12,  7,  4, 12,  4,  8, 12,  8,  3, 12,  3,  0, 12,  0,  9, 12,  9,  1, 12,  1,  2 ) .+ 1),
@@ -1878,7 +1878,7 @@ const tiling13_4 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_5_1 = (
   (
   Int8.(( 7,  6, 11,  1,  0,  9, 10,  3,  2,  3, 10,  5,  3,  5,  8,  4,  8, 5 ) .+ 1),
@@ -1902,7 +1902,7 @@ const tiling13_5_1 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling13_5_2 = (
   (
   Int8.(( 1,  0,  9,  7,  4,  8,  7,  8,  3,  7,  3, 11,  2, 11,  3, 11,  2, 10, 11, 10,  6,  5,  6, 10,  6,  5,  7,  4,  7, 5 ) .+ 1),
@@ -1926,7 +1926,7 @@ const tiling13_5_2 = (
  triangulations depending on the results
  A minus sign means to invert the result of the test.
 =#
-#-----------------------------------------------------------------------------
+
 const tiling14 = (
   Int8.((  5,  9,  8,  5,  8,  2,  5,  2,  6,  3,  2,  8 ) .+ 1),
   Int8.((  2,  1,  5,  2,  5,  8,  2,  8, 11,  4,  8,  5 ) .+ 1),
@@ -1951,7 +1951,7 @@ const tiling14 = (
  formed when cube[1] and cube[2] are inside of the surface, but the rest of
  the cube is not.
 =#
-#-----------------------------------------------------------------------------
+
 const casesClassic = (
   Int8.(( -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ) .+ 1),
   Int8.((  0,  8,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ) .+ 1),
