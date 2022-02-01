@@ -25,6 +25,9 @@ julia> using PlyIO
 julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be openend in a viewer, e.g. ParaView)
 ```
 
+Test scenario output:
+![ParaView Torus](torus.png)
+
 # Original BibTeX
 
 ```
