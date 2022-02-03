@@ -66,10 +66,10 @@ struct MC{F,I}
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
-        x::Union{Nothing,Vector{F}} = F[],
-        y::Union{Nothing,Vector{F}} = F[],
-        z::Union{Nothing,Vector{F}} = F[],
-    ) where {F,G<:Integer} = begin
+        x::AbstractVector{F} = F[],
+        y::AbstractVector{F} = F[],
+        z::AbstractVector{F} = F[],
+    ) where {F<:AbstractFloat,G<:Integer} = begin
         m = new{F,I}(
             size(vol)...,
             Ref(vol),
@@ -554,7 +554,7 @@ add_triangle(m::MC, i, j, k, tri, n, v12 = 0) = begin
         else
             v12
         end
-        @assert tv > 0
+        tv == 0 && @warn "Invalid triangle $(length(m.triangles) + 1)"
         id == 3 && push!(m.triangles, Triangle(m.tv))
     end
     return

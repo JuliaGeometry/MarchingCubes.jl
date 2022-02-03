@@ -1,4 +1,4 @@
-scenario(nx = 60, ny = 60, nz = 60, case = :torus2) = begin
+scenario(nx = 60, ny = 60, nz = 60; case = :torus2) = begin
     F = Float32
     vol = zeros(F, nx, ny, nz)
 
@@ -33,6 +33,8 @@ scenario(nx = 60, ny = 60, nz = 60, case = :torus2) = begin
 
     blooby(x, y, z) = x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
 
+    hyperboloid(x, y, z) = x^2 + y^2 - z^2 - 1
+
     callback = (;
         cushin = cushin,
         torus2 = torus2,
@@ -40,6 +42,7 @@ scenario(nx = 60, ny = 60, nz = 60, case = :torus2) = begin
         plane = plane,
         cassini = cassini,
         blooby = blooby,
+        hyperboloid = hyperboloid,
     )[case]
 
     for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
