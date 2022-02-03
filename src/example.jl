@@ -58,9 +58,9 @@ output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
         ply,
         PlyIO.PlyElement(
             "vertex",
-            PlyIO.ArrayProperty("x", Float32[v[1] - 1 for v ∈ m.vertices]),
-            PlyIO.ArrayProperty("y", Float32[v[2] - 1 for v ∈ m.vertices]),
-            PlyIO.ArrayProperty("z", Float32[v[3] - 1 for v ∈ m.vertices]),
+            PlyIO.ArrayProperty("x", Float32[v[1] for v ∈ m.vertices]),
+            PlyIO.ArrayProperty("y", Float32[v[2] for v ∈ m.vertices]),
+            PlyIO.ArrayProperty("z", Float32[v[3] for v ∈ m.vertices]),
             PlyIO.ArrayProperty("nx", Float32[n[1] for n ∈ m.normals]),
             PlyIO.ArrayProperty("ny", Float32[n[2] for n ∈ m.normals]),
             PlyIO.ArrayProperty("nz", Float32[n[3] for n ∈ m.normals]),
