@@ -1,6 +1,6 @@
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 [![CI](https://github.com/t-bltg/MarchingCubes.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/t-bltg/MarchingCubes.jl/actions/workflows/CI.yml)
-
+[![Coverage Status](https://codecov.io/gh/t-bltg/MarchingCubes.jl/branch/main/graphs/badge.svg?branch=master)](https://app.codecov.io/gh/t-bltg/MarchingCubes.jl) 
 # MarchingCubes
 
 Julia port of [Efficient Implementation of Marching Cubes' Cases with Topological Guarantees](https://www.tandfonline.com/doi/abs/10.1080/10867651.2003.10487582).
