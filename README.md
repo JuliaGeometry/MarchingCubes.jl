@@ -5,11 +5,11 @@
 
 Julia port of [Efficient Implementation of Marching Cubes' Cases with Topological Guarantees](https://www.tandfonline.com/doi/abs/10.1080/10867651.2003.10487582).
 
-[Public article](http://thomas.lewiner.org/pdfs/marching_cubes_jgt.pdf).
+Public article available [here](http://thomas.lewiner.org/pdfs/marching_cubes_jgt.pdf).
 
 # Implementation
 
-Adapted to `Julia` (`1`-based indexing) from the original [c++ implementation](http://thomas.lewiner.org/srcs/marching_cubes_jgt.zip) (`0`-based indexing).
+Adapted to `Julia` (`1` based indexing) from the original [c++ implementation](http://thomas.lewiner.org/srcs/marching_cubes_jgt.zip) (`0` based indexing).
 
 # Tiny benchmark
 
