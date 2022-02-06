@@ -1,4 +1,5 @@
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
+[![CI](https://github.com/t-bltg/MarchingCubes.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/t-bltg/MarchingCubes.jl/actions/workflows/CI.yml)
 
 # MarchingCubes
 
