@@ -113,7 +113,7 @@ end
 """
     march_legacy(m::MC, isovalue::Number)
 
-# Decription
+# Description
 Original Marching Cubes algorithm.
 
 # Arguments
@@ -143,7 +143,7 @@ end
 """
     march(m::MC, isovalue::Number)
 
-# Decription
+# Description
 Topologically controlled Marching Cubes algorithm.
 
 Arguments
