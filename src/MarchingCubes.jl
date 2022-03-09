@@ -320,7 +320,7 @@ Computes almost all the vertices of the mesh by interpolation along the cubes ed
 """
 compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
     @inbounds for k ∈ axes(vol, 3), j ∈ axes(vol, 2), i ∈ axes(vol, 1)
-        c0 = vol[i, j, k]
+        c0 = vol[i, j, k] - iso
         c1 = i < m.nx ? vol[i+1, j, k] - iso : c0
         c2 = j < m.ny ? vol[i, j+1, k] - iso : c0
         c3 = k < m.nz ? vol[i, j, k+1] - iso : c0
