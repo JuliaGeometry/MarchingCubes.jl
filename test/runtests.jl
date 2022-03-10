@@ -29,10 +29,12 @@ end
         y = collect(Float64, range(start_y, stop_y, length = ny)),
         z = collect(Float64, range(start_z, stop_z, length = nz)),
     )
-    march(mc)
-    @test all(map(v -> start_x ≤ v[1] ≤ stop_x, mc.vertices))
-    @test all(map(v -> start_y ≤ v[2] ≤ stop_y, mc.vertices))
-    @test all(map(v -> start_z ≤ v[3] ≤ stop_z, mc.vertices))
+    for callable ∈ (march, march_legacy)
+        callable(mc)
+        @test all(map(v -> start_x ≤ v[1] ≤ stop_x, mc.vertices))
+        @test all(map(v -> start_y ≤ v[2] ≤ stop_y, mc.vertices))
+        @test all(map(v -> start_z ≤ v[3] ≤ stop_z, mc.vertices))
+    end
 end
 
 @testset "plane" begin
