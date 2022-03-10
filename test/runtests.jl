@@ -55,3 +55,18 @@ end
     @test length(mc.vertices) == 12_297
     @test length(mc.triangles) == 24_118
 end
+
+@testset "isovalue" begin
+    X = Float64[1, 2, 3, 4, 5]
+    dat = [(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ X, y ∈ X, z ∈ X]
+
+    m1 = MC(dat)
+    march(m1, 5.0)
+
+    m2 = MC(dat .- 5.0)
+    march(m2)
+
+    @test all(m1.triangles .≈ m2.triangles)
+    @test all(m1.vertices .≈ m2.vertices)
+    @test all(m1.normals .≈ m2.normals)
+end
