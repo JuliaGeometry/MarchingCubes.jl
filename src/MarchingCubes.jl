@@ -129,6 +129,7 @@ denormalize(m::MC) = begin
             m.vertices[n] = Vertex(off .+ v .* scl)
         end
     end
+    return
 end
 
 """
