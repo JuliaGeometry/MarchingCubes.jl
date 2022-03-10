@@ -111,6 +111,28 @@ lut_entry(vol::Array{F,3}, cb, i, j, k, iso) where {F} = begin
 end
 
 """
+    denormalize(m::MC)
+
+# Description
+Optional denormalization step of vertices to user coordinates.
+"""
+denormalize(m::MC) = begin
+    if length(m.x[]) > 0 && length(m.y[]) > 0 && length(m.z[]) > 0
+        mx, Mx = extrema(m.x[])
+        my, My = extrema(m.y[])
+        mz, Mz = extrema(m.z[])
+        scl =
+            @SVector([Mx - mx, My - my, Mz - mz]) ./
+            @SVector([m.nx - 1, m.ny - 1, m.nz - 1])
+        off = @SVector([mx, my, mz])
+        @inbounds for (n, v) in enumerate(m.vertices)
+            m.vertices[n] = Vertex(off .+ v .* scl)
+        end
+    end
+    return
+end
+
+"""
     march_legacy(m::MC, isovalue::Number)
 
 # Description
@@ -138,6 +160,9 @@ march_legacy(m::MC{F}, isovalue::Number = 0) where {F} = begin
         end
         add_triangle(m, i, j, k, casesClassic[lut], nt)
     end
+
+    denormalize(m)
+    return
 end
 
 """
@@ -296,19 +321,7 @@ march(m::MC{F}, isovalue::Number = 0) where {F} = begin
         end
     end
 
-    if length(m.x[]) > 0 && length(m.y[]) > 0 && length(m.z[]) > 0
-        mx, Mx = extrema(m.x[])
-        my, My = extrema(m.y[])
-        mz, Mz = extrema(m.z[])
-        scl =
-            @SVector([Mx - mx, My - my, Mz - mz]) ./
-            @SVector([m.nx - 1, m.ny - 1, m.nz - 1])
-        off = @SVector([mx, my, mz])
-        @inbounds for (n, v) in enumerate(m.vertices)
-            m.vertices[n] = Vertex(off .+ v .* scl)
-        end
-    end
-
+    denormalize(m)
     return
 end
 
@@ -320,7 +333,7 @@ Computes almost all the vertices of the mesh by interpolation along the cubes ed
 """
 compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
     @inbounds for k ∈ axes(vol, 3), j ∈ axes(vol, 2), i ∈ axes(vol, 1)
-        c0 = vol[i, j, k]
+        c0 = vol[i, j, k] - iso
         c1 = i < m.nx ? vol[i+1, j, k] - iso : c0
         c2 = j < m.ny ? vol[i, j+1, k] - iso : c0
         c3 = k < m.nz ? vol[i, j, k+1] - iso : c0
