@@ -62,8 +62,7 @@ end
 end
 
 @testset "isovalue" begin
-    X = Float64[1, 2, 3, 4, 5]
-    dat = [(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ X, y ∈ X, z ∈ X]
+    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
 
     m1 = MC(dat)
     march(m1, 5.0)
