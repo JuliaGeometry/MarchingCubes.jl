@@ -39,21 +39,24 @@ end
 
 @testset "plane" begin
     mc = MarchingCubes.scenario(case = :plane)
-    march(mc)
+    bytes = @allocated march(mc)
+    @test bytes == 0
     @test length(mc.vertices) == 7_038
     @test length(mc.triangles) == 13_720
 end
 
 @testset "sphere" begin
     mc = MarchingCubes.scenario(case = :sphere)
-    march(mc)
+    bytes = @allocated march(mc)
+    @test bytes == 0
     @test length(mc.vertices) == 792
     @test length(mc.triangles) == 1572
 end
 
 @testset "hyperboloid" begin
     mc = MarchingCubes.scenario(case = :hyperboloid)
-    march(mc)
+    bytes = @allocated march(mc)
+    @test bytes == 0
     @test length(mc.vertices) == 12_297
     @test length(mc.triangles) == 24_118
 end
