@@ -1,5 +1,6 @@
 using BenchmarkTools
 using MarchingCubes
+using Meshes
 using PlyIO
 using Test
 
@@ -73,4 +74,10 @@ end
     @test all(m1.triangles .≈ m2.triangles)
     @test all(m1.vertices .≈ m2.vertices)
     @test all(m1.normals .≈ m2.normals)
+end
+
+@testset "makemesh" begin
+    mc = MarchingCubes.scenario()
+    march(mc)
+    mesh = MarchingCubes.makemesh(Meshes, mc)
 end
