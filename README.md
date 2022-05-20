@@ -33,6 +33,26 @@ julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be openend in a
 Test scenario output:
 ![ParaView Torus](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/torus.png)
 
+# MWE demonstrating visualization with Makie.jl
+```julia
+using MarchingCubes
+using GLMakie
+using Meshes, MeshViz
+
+function makemesh(mcobj)
+    points = Meshes.Point3[Tuple(pt) for pt in mcobj.vertices]
+    tris = connect.([Tuple(tri) for tri in mcobj.triangles], Triangle)
+    mesh = SimpleMesh(points, [tris;])
+end
+
+mc = MarchingCubes.scenario()
+march(mc)
+mesh = makemesh(mc)
+f = viz(mesh)
+display(f)
+```
+
+
 # Original BibTeX
 
 ```
