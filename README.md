@@ -31,7 +31,7 @@ julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be openend in a
 ```
 
 Test scenario output:
-![ParaView Torus](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/torus.png)
+![ParaView Torus](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/paraview-torus.png)
 
 # MWE demonstrating visualization with Makie.jl
 
