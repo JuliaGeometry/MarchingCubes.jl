@@ -75,3 +75,9 @@ output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
     PlyIO.save_ply(ply, fn, ascii = true)
     return
 end
+
+makemesh(Meshes::Module, m::MC) = begin
+    points = Meshes.Point3[Tuple(pt) for pt ∈ m.vertices]
+    tris = Meshes.connect.([Tuple(tri) for tri ∈ m.triangles], Meshes.Triangle)
+    Meshes.SimpleMesh(points, [tris;])
+end
