@@ -34,24 +34,20 @@ Test scenario output:
 ![ParaView Torus](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/torus.png)
 
 # MWE demonstrating visualization with Makie.jl
+
 ```julia
 using MarchingCubes
 using GLMakie
-using Meshes, MeshViz
-
-function makemesh(mcobj)
-    points = Meshes.Point3[Tuple(pt) for pt in mcobj.vertices]
-    tris = connect.([Tuple(tri) for tri in mcobj.triangles], Triangle)
-    mesh = SimpleMesh(points, [tris;])
-end
+using MeshViz
+using Meshes
 
 mc = MarchingCubes.scenario()
 march(mc)
-mesh = makemesh(mc)
-f = viz(mesh)
-display(f)
+mesh = MarchingCubes.makemesh(Meshes, mc)
+display(viz(mesh))
 ```
 
+![Makie Mesh](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/makie-mesh.png)
 
 # Original BibTeX
 
