@@ -80,4 +80,6 @@ end
     mc = MarchingCubes.scenario()
     march(mc)
     mesh = MarchingCubes.makemesh(Meshes, mc)
+    @test nvertices(mesh) == length(mc.vertices)
+    @test nelements(mesh.topology) == length(mc.triangles)
 end
