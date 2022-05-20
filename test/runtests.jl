@@ -29,29 +29,48 @@ end
         y = collect(Float64, range(start_y, stop_y, length = ny)),
         z = collect(Float64, range(start_z, stop_z, length = nz)),
     )
-    march(mc)
-    @test all(map(v -> start_x ≤ v[1] ≤ stop_x, mc.vertices))
-    @test all(map(v -> start_y ≤ v[2] ≤ stop_y, mc.vertices))
-    @test all(map(v -> start_z ≤ v[3] ≤ stop_z, mc.vertices))
+    for callable ∈ (march, march_legacy)
+        callable(mc)
+        @test all(map(v -> start_x ≤ v[1] ≤ stop_x, mc.vertices))
+        @test all(map(v -> start_y ≤ v[2] ≤ stop_y, mc.vertices))
+        @test all(map(v -> start_z ≤ v[3] ≤ stop_z, mc.vertices))
+    end
 end
 
 @testset "plane" begin
     mc = MarchingCubes.scenario(case = :plane)
-    march(mc)
+    bytes = @allocated march(mc)
+    @test bytes == 0
     @test length(mc.vertices) == 7_038
     @test length(mc.triangles) == 13_720
 end
 
 @testset "sphere" begin
     mc = MarchingCubes.scenario(case = :sphere)
-    march(mc)
+    bytes = @allocated march(mc)
+    @test bytes == 0
     @test length(mc.vertices) == 792
     @test length(mc.triangles) == 1572
 end
 
 @testset "hyperboloid" begin
     mc = MarchingCubes.scenario(case = :hyperboloid)
-    march(mc)
+    bytes = @allocated march(mc)
+    @test bytes == 0
     @test length(mc.vertices) == 12_297
     @test length(mc.triangles) == 24_118
+end
+
+@testset "isovalue" begin
+    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
+
+    m1 = MC(dat)
+    march(m1, 5.0)
+
+    m2 = MC(dat .- 5.0)
+    march(m2)
+
+    @test all(m1.triangles .≈ m2.triangles)
+    @test all(m1.vertices .≈ m2.vertices)
+    @test all(m1.normals .≈ m2.normals)
 end

@@ -111,6 +111,28 @@ lut_entry(vol::Array{F,3}, cb, i, j, k, iso) where {F} = begin
 end
 
 """
+    denormalize(m::MC)
+
+# Description
+Optional denormalization step of vertices to user coordinates.
+"""
+denormalize(m::MC) = begin
+    if length(m.x[]) > 0 && length(m.y[]) > 0 && length(m.z[]) > 0
+        mx, Mx = extrema(m.x[])
+        my, My = extrema(m.y[])
+        mz, Mz = extrema(m.z[])
+        scl =
+            @SVector([Mx - mx, My - my, Mz - mz]) ./
+            @SVector([m.nx - 1, m.ny - 1, m.nz - 1])
+        off = @SVector([mx, my, mz])
+        @inbounds for (n, v) in enumerate(m.vertices)
+            m.vertices[n] = Vertex(off .+ v .* scl)
+        end
+    end
+    return
+end
+
+"""
     march_legacy(m::MC, isovalue::Number)
 
 # Description
@@ -138,6 +160,9 @@ march_legacy(m::MC{F}, isovalue::Number = 0) where {F} = begin
         end
         add_triangle(m, i, j, k, casesClassic[lut], nt)
     end
+
+    denormalize(m)
+    return
 end
 
 """
@@ -296,19 +321,7 @@ march(m::MC{F}, isovalue::Number = 0) where {F} = begin
         end
     end
 
-    if length(m.x[]) > 0 && length(m.y[]) > 0 && length(m.z[]) > 0
-        mx, Mx = extrema(m.x[])
-        my, My = extrema(m.y[])
-        mz, Mz = extrema(m.z[])
-        scl =
-            @SVector([Mx - mx, My - my, Mz - mz]) ./
-            @SVector([m.nx - 1, m.ny - 1, m.nz - 1])
-        off = @SVector([mx, my, mz])
-        @inbounds for (n, v) in enumerate(m.vertices)
-            m.vertices[n] = Vertex(off .+ v .* scl)
-        end
-    end
-
+    denormalize(m)
     return
 end
 
