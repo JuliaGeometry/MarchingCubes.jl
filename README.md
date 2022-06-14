@@ -13,7 +13,7 @@ Public article available [here](http://thomas.lewiner.org/pdfs/marching_cubes_jg
 
 Adapted to `Julia` (`1` based indexing) from the original [c++ implementation](http://thomas.lewiner.org/srcs/marching_cubes_jgt.zip) (`0` based indexing).
 
-# Tiny benchmark
+# Tiny benchmark - visualization with ParaView
 
 ```bash
 $ g++ -O3 ply.c main.cpp MarchingCubes.cpp
@@ -27,7 +27,7 @@ julia> @btime march($mc)
 julia> @btime march_legacy($mc)
   9.268 ms (0 allocations: 0 bytes)
 julia> using PlyIO
-julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be openend in a viewer, e.g. ParaView)
+julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be opened in a viewer, e.g. ParaView)
 ```
 
 Test scenario output:
