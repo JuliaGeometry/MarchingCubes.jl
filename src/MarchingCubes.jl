@@ -19,8 +19,10 @@ Adapted to `Julia` by T Bltg (github.com/t-bltg).
 
 module MarchingCubes
 
-import Base: RefValue
+using SnoopPrecompile
 using StaticArrays
+
+import Base: RefValue
 
 export MC, march, march_legacy
 
@@ -689,5 +691,11 @@ add_c_vertex(m::MC{F}, i, j, k) where {F} = begin
 end
 
 include("example.jl")
+
+@precompile_setup begin
+    @precompile_all_calls begin
+        march(MarchingCubes.scenario(4, 4, 4; F = Float64, I = Int))
+    end
+end
 
 end

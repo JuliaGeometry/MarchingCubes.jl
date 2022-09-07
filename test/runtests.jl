@@ -62,6 +62,30 @@ end
     @test length(mc.triangles) == 24_118
 end
 
+@testset "cushin" begin
+    mc = MarchingCubes.scenario(case = :cushin)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 302
+    @test length(mc.triangles) == 600
+end
+
+@testset "cassini" begin
+    mc = MarchingCubes.scenario(case = :cassini)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 554
+    @test length(mc.triangles) == 1_104
+end
+
+@testset "blooby" begin
+    mc = MarchingCubes.scenario(case = :blooby)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 2_168
+    @test length(mc.triangles) == 4_352
+end
+
 @testset "isovalue" begin
     dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
 
