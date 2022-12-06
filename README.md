@@ -1,5 +1,6 @@
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 [![CI](https://github.com/JuliaGeometry/MarchingCubes.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeometry/MarchingCubes.jl/actions/workflows/CI.yml)
+[![PkgEval](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/M/MarchingCubes.svg)](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/report.html)
 [![Coverage Status](https://codecov.io/gh/JuliaGeometry/MarchingCubes.jl/branch/main/graphs/badge.svg)](https://app.codecov.io/gh/JuliaGeometry/MarchingCubes.jl)
 [![MarchingCubes Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/MarchingCubes)](https://pkgs.genieframework.com?packages=MarchingCubes)
 
