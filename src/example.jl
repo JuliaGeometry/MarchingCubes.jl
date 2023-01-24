@@ -66,8 +66,24 @@ output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
     return
 end
 
-makemesh(Meshes::Module, m::MC) = begin
+makemesh_Meshes(Meshes::Module, m::MC) = begin
     points = Meshes.Point3[Tuple(pt) for pt ∈ m.vertices]
     tris = Meshes.connect.([Tuple(tri) for tri ∈ m.triangles], Meshes.Triangle)
     Meshes.SimpleMesh(points, [tris;])
 end
+
+makemesh_GeometryBasics(GeometryBasics::Module, m::MC) = begin
+    vertices = map(GeometryBasics.Point3f, m.vertices)
+    normals = map(GeometryBasics.Vec3f, m.normals)
+    triangles = map(t -> GeometryBasics.TriangleFace(t...), m.triangles)
+    msh = GeometryBasics.Mesh(GeometryBasics.meta(vertices; normals), triangles)
+end
+
+makemesh(mod::Module, m::MC) =
+    if (mod_str = string(mod)) == "Meshes"
+        makemesh_Meshes(mod, m)
+    elseif mod_str == "GeometryBasics"
+        makemesh_GeometryBasics(mod, m)
+    else
+        @warn "unusupported module $mod"
+    end

@@ -1,4 +1,5 @@
 using BenchmarkTools
+using GeometryBasics
 using MarchingCubes
 using Meshes
 using PlyIO
@@ -16,6 +17,14 @@ using Test
     @test length(mc.vertices) == 11_333
     @test length(mc.triangles) == 22_732
     MarchingCubes.output(PlyIO, mc, tempname())
+end
+
+@testset "types" begin
+    for F ∈ (Float16, Float32, Float64), I ∈ (Int32, Int64)
+        mc = MarchingCubes.scenario(; F, I)
+        march(mc)
+    end
+    @test true
 end
 
 @testset "normalize" begin
@@ -103,7 +112,12 @@ end
 @testset "makemesh" begin
     mc = MarchingCubes.scenario()
     march(mc)
-    mesh = MarchingCubes.makemesh(Meshes, mc)
-    @test nvertices(mesh) == length(mc.vertices)
-    @test nelements(topology(mesh)) == length(mc.triangles)
+
+    msh = MarchingCubes.makemesh(Meshes, mc)
+    @test nvertices(msh) == length(mc.vertices)
+    @test nelements(topology(msh)) == length(mc.triangles)
+
+    msh = MarchingCubes.makemesh(GeometryBasics, mc)
+    @test length(msh.position) == length(mc.vertices)
+    @test length(msh.normals) == length(mc.normals)
 end

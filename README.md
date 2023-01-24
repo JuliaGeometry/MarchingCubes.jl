@@ -34,7 +34,7 @@ julia> MarchingCubes.output(PlyIO, mc)  # writes "test.ply" (can be opened in a 
 Test scenario output:
 ![ParaView Torus](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/paraview-torus.png)
 
-# MWE demonstrating visualization with Makie.jl
+# MWE demonstrating visualization with MeshViz.jl
 
 ```julia
 using MarchingCubes
@@ -44,11 +44,29 @@ using Meshes
 
 mc = MarchingCubes.scenario()
 march(mc)
-mesh = MarchingCubes.makemesh(Meshes, mc)
-display(viz(mesh))
+msh = MarchingCubes.makemesh(Meshes, mc)
+display(viz(msh))
+```
+
+![Meshviz Mesh](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/meshviz-mesh.png)
+
+# MWE demonstrating visualization with GeometryBasics.jl and Makie.jl
+
+```julia
+using GeometryBasics
+using MarchingCubes
+using GLMakie
+
+mc = MarchingCubes.scenario()
+march(mc)
+msh = MarchingCubes.makemesh(GeometryBasics, mc)
+
+fap = mesh(msh; color = :gray)
+display(fap)
 ```
 
 ![Makie Mesh](https://github.com/JuliaGeometry/MarchingCubes.jl/raw/marchingcubes-docs/makie-mesh.png)
+
 
 # Original BibTeX
 
