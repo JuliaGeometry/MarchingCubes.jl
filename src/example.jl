@@ -85,5 +85,5 @@ makemesh(mod::Module, m::MC) =
     elseif mod_str == "GeometryBasics"
         makemesh_GeometryBasics(mod, m)
     else
-        @warn "un-supported module `$mod`"
+        throw(ArgumentError("un-supported module `$mod`"))
     end

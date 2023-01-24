@@ -20,8 +20,10 @@ using Test
 end
 
 @testset "types" begin
-    for F ∈ (Float16, Float32, Float64), I ∈ (Int32, Int64)
-        @test march(MarchingCubes.scenario(; F, I)) isa Nothing
+    for F ∈ (Float16, Float32, Float64)
+        for I ∈ (Int16, Int32, Int64, Int128, UInt16, UInt32, UInt64, UInt128)
+            @test march(MarchingCubes.scenario(4, 4, 4; F, I)) isa Nothing
+        end
     end
 end
 
@@ -112,10 +114,14 @@ end
     march(mc)
 
     msh = MarchingCubes.makemesh(Meshes, mc)
+    @test msh isa Meshes.SimpleMesh
     @test nvertices(msh) == length(mc.vertices)
     @test nelements(topology(msh)) == length(mc.triangles)
 
     msh = MarchingCubes.makemesh(GeometryBasics, mc)
+    @test msh isa GeometryBasics.Mesh
     @test length(msh.position) == length(mc.vertices)
     @test length(msh.normals) == length(mc.normals)
+
+    @test_throws ArgumentError MarchingCubes.makemesh(PlyIO, mc)
 end
