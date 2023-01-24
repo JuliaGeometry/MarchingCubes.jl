@@ -48,12 +48,12 @@ output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
         ply,
         PlyIO.PlyElement(
             "vertex",
-            PlyIO.ArrayProperty("x", Float32[v[1] for v ∈ m.vertices]),
-            PlyIO.ArrayProperty("y", Float32[v[2] for v ∈ m.vertices]),
-            PlyIO.ArrayProperty("z", Float32[v[3] for v ∈ m.vertices]),
-            PlyIO.ArrayProperty("nx", Float32[n[1] for n ∈ m.normals]),
-            PlyIO.ArrayProperty("ny", Float32[n[2] for n ∈ m.normals]),
-            PlyIO.ArrayProperty("nz", Float32[n[3] for n ∈ m.normals]),
+            PlyIO.ArrayProperty("x", map(v -> Float32(v[1]), m.vertices)),
+            PlyIO.ArrayProperty("y", map(v -> Float32(v[2]), m.vertices)),
+            PlyIO.ArrayProperty("z", map(v -> Float32(v[3]), m.vertices)),
+            PlyIO.ArrayProperty("nx", map(n -> Float32(n[1]), m.normals)),
+            PlyIO.ArrayProperty("ny", map(n -> Float32(n[2]), m.normals)),
+            PlyIO.ArrayProperty("nz", map(n -> Float32(n[3]), m.normals)),
         ),
     )
     vertex_indices = PlyIO.ListProperty("vertex_indices", UInt8, Int32)
@@ -63,11 +63,27 @@ output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
     push!(ply, PlyIO.PlyElement("face", vertex_indices))
 
     PlyIO.save_ply(ply, fn, ascii = true)
-    return
+    nothing
 end
 
-makemesh(Meshes::Module, m::MC) = begin
-    points = Meshes.Point3[Tuple(pt) for pt ∈ m.vertices]
-    tris = Meshes.connect.([Tuple(tri) for tri ∈ m.triangles], Meshes.Triangle)
+makemesh_Meshes(Meshes::Module, m::MC) = begin
+    points = map(Meshes.Point3 ∘ Tuple, m.vertices)
+    tris = Meshes.connect.(map(Tuple, m.triangles), Meshes.Triangle)
     Meshes.SimpleMesh(points, [tris;])
 end
+
+makemesh_GeometryBasics(GeometryBasics::Module, m::MC) = begin
+    vertices = map(GeometryBasics.Point3f, m.vertices)
+    normals = map(GeometryBasics.Vec3f, m.normals)
+    triangles = map(t -> GeometryBasics.TriangleFace(t...), m.triangles)
+    GeometryBasics.Mesh(GeometryBasics.meta(vertices; normals), triangles)
+end
+
+makemesh(mod::Module, m::MC) =
+    if (mod_str = string(mod)) == "Meshes"
+        makemesh_Meshes(mod, m)
+    elseif mod_str == "GeometryBasics"
+        makemesh_GeometryBasics(mod, m)
+    else
+        throw(ArgumentError("un-supported module `$mod`"))
+    end

@@ -131,7 +131,7 @@ denormalize(m::MC) = begin
             m.vertices[n] = Vertex(off .+ v .* scl)
         end
     end
-    return
+    nothing
 end
 
 """
@@ -164,7 +164,7 @@ march_legacy(m::MC{F}, isovalue::Number = 0) where {F} = begin
     end
 
     denormalize(m)
-    return
+    nothing
 end
 
 """
@@ -324,7 +324,7 @@ march(m::MC{F}, isovalue::Number = 0) where {F} = begin
     end
 
     denormalize(m)
-    return
+    nothing
 end
 
 """
@@ -335,10 +335,10 @@ Computes almost all the vertices of the mesh by interpolation along the cubes ed
 """
 compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
     @inbounds for k ∈ axes(vol, 3), j ∈ axes(vol, 2), i ∈ axes(vol, 1)
-        c0 = vol[i, j, k] - iso
-        c1 = i < m.nx ? vol[i+1, j, k] - iso : c0
-        c2 = j < m.ny ? vol[i, j+1, k] - iso : c0
-        c3 = k < m.nz ? vol[i, j, k+1] - iso : c0
+        c0::F = vol[i, j, k] - iso
+        c1::F = i < m.nx ? vol[i+1, j, k] - iso : c0
+        c2::F = j < m.ny ? vol[i, j+1, k] - iso : c0
+        c3::F = k < m.nz ? vol[i, j, k+1] - iso : c0
         m.cube[1] = abs(c0) < eps(F) ? eps(F) : c0
         m.cube[2] = abs(c1) < eps(F) ? eps(F) : c1
         m.cube[4] = abs(c2) < eps(F) ? eps(F) : c2
@@ -359,7 +359,7 @@ compute_intersection_points(m::MC{F}, vol, cb, iso) where {F} = begin
                 (m.vert_indices[3, i, j, k] = add_z_vertex(m, vol, cb, i, j, k))
         end
     end
-    return
+    nothing
 end
 
 """
@@ -471,7 +471,7 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
     Ct ≥ 0 && (test += 4)
     Dt ≥ 0 && (test += 8)
 
-    return if test == 6 || test == 8 || test == 9 || test == 12 || (test ≥ 0 && test ≤ 4)
+    if test == 6 || test == 8 || test == 9 || test == 12 || (test ≥ 0 && test ≤ 4)
         s > 0
     elseif test == 5
         (At * Ct - Bt * Dt < eps(T)) ? s > 0 : s < 0
@@ -479,7 +479,7 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
         (At * Ct - Bt * Dt ≥ eps(T)) ? s > 0 : s < 0
     else  # test == 7 || test == 11 || test ≥ 13
         s < 0
-    end
+    end::Bool
 end
 
 """
@@ -538,7 +538,7 @@ Routine to add a triangle to the mesh.
   - `n` the number of triangles to produce.
   - `v12` the index of the interior vertex to use, if necessary.
 """
-add_triangle(m::MC, i, j, k, tri, n, v12 = 0) = begin
+add_triangle(m::MC{F,I}, i, j, k, tri, n, v12 = 0) where {F,I} = begin
     @inbounds for t ∈ 1:3n
         tr = tri[t]
         id = (t - 1) % 3 + 1
@@ -567,12 +567,12 @@ add_triangle(m::MC, i, j, k, tri, n, v12 = 0) = begin
         elseif tr == 12
             m.vert_indices[3, i, j+1, k]
         else
-            v12
-        end
+            I(v12)
+        end::I
         tv == 0 && @warn "Invalid triangle $(length(m.triangles) + 1)"
         id == 3 && push!(m.triangles, Triangle(m.tv))
     end
-    return
+    nothing
 end
 
 """
@@ -581,23 +581,23 @@ end
 # Description
 Interpolates the horizontal gradient of the implicit function at the lower vertex of the specified cube.
 """
-@inline ∇x(vol, i, j, k, nx) = @inbounds(
+@inline ∇x(vol::AbstractArray{F}, i, j, k, nx) where {F} = @inbounds(
     i > 1 ?
     (i < nx ? (vol[i+1, j, k] - vol[i-1, j, k]) / 2 : (vol[i, j, k] - vol[i-1, j, k])) :
     (vol[i+1, j, k] - vol[i, j, k])
-)
+)::F
 
-@inline ∇y(vol, i, j, k, ny) = @inbounds(
+@inline ∇y(vol::AbstractArray{F}, i, j, k, ny) where {F} = @inbounds(
     j > 1 ?
     (j < ny ? (vol[i, j+1, k] - vol[i, j-1, k]) / 2 : (vol[i, j, k] - vol[i, j-1, k])) :
     (vol[i, j+1, k] - vol[i, j, k])
-)
+)::F
 
-@inline ∇z(vol, i, j, k, nz) = @inbounds(
+@inline ∇z(vol::AbstractArray{F}, i, j, k, nz) where {F} = @inbounds(
     k > 1 ?
     (k < nz ? (vol[i, j, k+1] - vol[i, j, k-1]) / 2 : (vol[i, j, k] - vol[i, j, k-1])) :
     (vol[i, j, k+1] - vol[i, j, k])
-)
+)::F
 
 @inline norm(x) = @inbounds √(x[1]^2 + x[2]^2 + x[3]^2)
 
@@ -692,10 +692,8 @@ end
 
 include("example.jl")
 
-@precompile_setup begin
-    @precompile_all_calls begin
-        march(MarchingCubes.scenario(4, 4, 4; F = Float64, I = Int))
-    end
+@precompile_all_calls begin
+    march(MarchingCubes.scenario(4, 4, 4; F = Float64, I = Int))
 end
 
 end
