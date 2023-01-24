@@ -21,10 +21,8 @@ end
 
 @testset "types" begin
     for F ∈ (Float16, Float32, Float64), I ∈ (Int32, Int64)
-        mc = MarchingCubes.scenario(; F, I)
-        march(mc)
+        @test march(MarchingCubes.scenario(; F, I)) isa Nothing
     end
-    @test true
 end
 
 @testset "normalize" begin
