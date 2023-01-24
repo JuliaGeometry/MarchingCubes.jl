@@ -72,9 +72,13 @@ makemesh_Meshes(Meshes::Module, m::MC) = begin
     Meshes.SimpleMesh(points, [tris;])
 end
 
-makemesh_GeometryBasics(GeometryBasics::Module, m::MC) = begin
+makemesh_GeometryBasics(GeometryBasics::Module, m::MC, invert_normals::Bool=false) = begin
     vertices = map(GeometryBasics.Point3f, m.vertices)
-    normals = map(GeometryBasics.Vec3f, m.normals)
+	if invert_normals
+    	normals = map(GeometryBasics.Vec3f, -m.normals)
+	else
+		normals = map(GeometryBasics.Vec3f, m.normals)
+	end
     triangles = map(t -> GeometryBasics.TriangleFace(t...), m.triangles)
     GeometryBasics.Mesh(GeometryBasics.meta(vertices; normals), triangles)
 end
