@@ -64,7 +64,7 @@ struct MC{F,I}
     x::RefValue{Vector{F}}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
-	normal_sign::Int
+    normal_sign::Int
 
     MC(
         vol::Array{F,3},
@@ -87,7 +87,7 @@ struct MC{F,I}
             Ref(x),
             Ref(y),
             Ref(z),
-			1
+            1
         )
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
