@@ -137,7 +137,7 @@ denormalize(m::MC) = begin
 end
 
 """
-    march_legacy(m::MC, isovalue::Number)
+    march_legacy(m::MC, isovalue::Number = 0)
 
 # Description
 Original Marching Cubes algorithm.
@@ -146,7 +146,7 @@ Original Marching Cubes algorithm.
     - `m`: Marching Cubes data structure.
     - `isovalue`: isosurface value.
 """
-march_legacy(m::MC{F}, isovalue::Number = 0) where {F} = begin
+march_legacy(m::MC{F}, isovalue::Number = F(0)) where {F} = begin
     empty!(m.triangles)
     empty!(m.vertices)
     empty!(m.normals)
@@ -170,7 +170,7 @@ march_legacy(m::MC{F}, isovalue::Number = 0) where {F} = begin
 end
 
 """
-    march(m::MC, isovalue::Number)
+    march(m::MC, isovalue::Number = 0)
 
 # Description
 Topologically controlled Marching Cubes algorithm.
@@ -179,7 +179,7 @@ Arguments
     - `m`: Marching Cubes data structure.
     - `isovalue`: isosurface value.
 """
-march(m::MC{F}, isovalue::Number = 0) where {F} = begin
+march(m::MC{F}, isovalue::Number = F(0)) where {F} = begin
     empty!(m.triangles)
     empty!(m.vertices)
     empty!(m.normals)
@@ -536,11 +536,11 @@ end
 Routine to add a triangle to the mesh.
 
 # Arguments
-  - `trig` the code for the triangle as a sequence of edges index.
+  - `tri` the code for the triangle as a sequence of edges index.
   - `n` the number of triangles to produce.
   - `v12` the index of the interior vertex to use, if necessary.
 """
-add_triangle(m::MC{F,I}, i, j, k, tri, n, v12 = 0) where {F,I} = begin
+add_triangle(m::MC{F,I}, i, j, k, tri, n, v12 = I(0)) where {F,I} = begin
     @inbounds for t ∈ 1:3n
         tr = tri[t]
         id = (t - 1) % 3 + 1
