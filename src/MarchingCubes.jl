@@ -64,7 +64,7 @@ struct MC{F,I}
     x::RefValue{Vector{F}}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
-
+    normal_sign::Int
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
@@ -86,6 +86,7 @@ struct MC{F,I}
             Ref(x),
             Ref(y),
             Ref(z),
+            1,
         )
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
@@ -629,7 +630,7 @@ add_y_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1 + u, k - 1))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -642,7 +643,7 @@ add_z_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1, k - 1 + u))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -686,7 +687,7 @@ add_c_vertex(m::MC{F}, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(m.vtx))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
