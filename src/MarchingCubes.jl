@@ -64,7 +64,7 @@ struct MC{F,I}
     x::RefValue{Vector{F}}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
-    normal_sign::Int
+    normal_sign::Int # direction of normal vectors (+1 for outward / -1 for inward)
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
