@@ -627,9 +627,9 @@ end
 add_y_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
     @inbounds begin
         u = cb[1] / (cb[1] - cb[4])
-        m.nrm[1] = m.normal_sign * (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i, j + 1, k, m.nx)
-        m.nrm[2] = m.normal_sign * (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i, j + 1, k, m.ny)
-        m.nrm[3] = m.normal_sign * (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i, j + 1, k, m.nz)
+        m.nrm[1] = (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i, j + 1, k, m.nx)
+        m.nrm[2] = (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i, j + 1, k, m.ny)
+        m.nrm[3] = (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i, j + 1, k, m.nz)
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1 + u, k - 1))
