@@ -110,12 +110,12 @@ end
 end
 
 @testset "invert_normals" begin
-    mc = MarchingCubes.scenario()
+    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
 
-    m1 = MC(mc)
+    m1 = MC(dat)
     march(m1)
 
-    m2 = MC(mc,normal_sign=-1)
+    m2 = MC(dat,normal_sign=-1)
     march(m2)
 
     @test sqrt(dot(m1.normals,m1.normals)) ≈ sqrt(dot(m2.normals,m2.normals))
