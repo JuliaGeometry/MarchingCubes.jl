@@ -89,7 +89,8 @@ struct MC{F,I}
             Ref(z),
             normal_sign,
         )
-        normal_sign ∈ (-1, +1) || throw(ArgumentError("`normal_sign` should be either -1 or +1")) 
+        normal_sign ∈ (-1, +1) ||
+        throw(ArgumentError("`normal_sign` should be either -1 or +1"))
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
         sizehint!(m.vertices, nextpow(2, sz ÷ 2))
