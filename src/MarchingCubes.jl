@@ -65,7 +65,6 @@ struct MC{F,I}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
     normal_sign::Int  # direction of normal vectors (+1 for outward / -1 for inward)
-    normal_sign ∈ (-1, +1) || throw(ArgumentError("`normal_sign` should be either -1 or +1")) 
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
@@ -89,6 +88,7 @@ struct MC{F,I}
             Ref(z),
             1,
         )
+        m.normal_sign ∈ (-1, +1) || throw(ArgumentError("`normal_sign` should be either -1 or +1")) 
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
         sizehint!(m.vertices, nextpow(2, sz ÷ 2))
