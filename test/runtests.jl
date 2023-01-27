@@ -109,19 +109,19 @@ end
     @test all(m1.normals .≈ m2.normals)
 end
 
-@testset "invert_normals" begin
+@testset "invert normals" begin
     dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
 
     m1 = MC(dat)
     march(m1)
 
-    m2 = MC(dat,normal_sign=-1)
+    m2 = MC(dat, normal_sign = -1)
     march(m2)
 
     @test all(MarchingCubes.norm.(m1.normals) .≈ MarchingCubes.norm.(m2.normals))
 
-    @test_throws ArgumentError MC(dat; normal_sign=+2)
-    @test_throws ArgumentError MC(dat; normal_sign=-2)
+    @test_throws ArgumentError MC(dat; normal_sign = +2)
+    @test_throws ArgumentError MC(dat; normal_sign = -2)
 end
 
 @testset "makemesh" begin
