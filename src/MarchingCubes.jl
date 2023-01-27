@@ -64,13 +64,14 @@ struct MC{F,I}
     x::RefValue{Vector{F}}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
-
+    normal_sign::Int  # direction of normal vectors (+1 for outward / -1 for inward)
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
         x::AbstractVector{F} = F[],
         y::AbstractVector{F} = F[],
         z::AbstractVector{F} = F[],
+        normal_sign::Int = 1,
     ) where {F<:AbstractFloat,G<:Integer} = begin
         m = new{F,I}(
             size(vol)...,
@@ -86,7 +87,9 @@ struct MC{F,I}
             Ref(x),
             Ref(y),
             Ref(z),
+            normal_sign,
         )
+        normal_sign ∈ (-1, +1) || throw(ArgumentError("`normal_sign` should be either -1 or +1")) 
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
         sizehint!(m.vertices, nextpow(2, sz ÷ 2))
@@ -616,7 +619,7 @@ add_x_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1 + u, j - 1, k - 1))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -629,7 +632,7 @@ add_y_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1 + u, k - 1))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -642,7 +645,7 @@ add_z_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1, k - 1 + u))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -686,7 +689,7 @@ add_c_vertex(m::MC{F}, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(m.vtx))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 

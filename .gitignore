@@ -28,3 +28,4 @@ Manifest.toml
 .old/
 
 *.ply  # test files
+.vscode/settings.json

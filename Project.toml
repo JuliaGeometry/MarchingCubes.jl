@@ -1,8 +1,8 @@
 name = "MarchingCubes"
 uuid = "299715c1-40a9-479a-aaf9-4a633d36f717"
+license = "MIT"
 desc = "Efficient Implementation of Marching Cubes' Cases with Topological Guarantees"
 authors = ["T Bltg <tf.bltg@gmail.com>"]
-license = "MIT"
 version = "0.1.5"
 
 [deps]
