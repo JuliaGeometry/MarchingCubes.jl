@@ -109,6 +109,21 @@ end
     @test all(m1.normals .≈ m2.normals)
 end
 
+@testset "invert_normals" begin
+    mc = MarchingCubes.scenario()
+
+    m1 = MC(mc)
+    march(m1)
+
+    m2 = MC(mc,normal_sign=-1)
+    march(m2)
+
+    @test sqrt(dot(m1.normals,m1.normals)) ≈ sqrt(dot(m2.normals,m2.normals))
+
+    @test_throws ArgumentError MC(mc,normal_sign=2)
+    @test_throws ArgumentError MC(mc,normal_sign=-2)
+end
+
 @testset "makemesh" begin
     mc = MarchingCubes.scenario()
     march(mc)
