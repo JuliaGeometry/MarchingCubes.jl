@@ -21,7 +21,6 @@ module MarchingCubes
 
 using SnoopPrecompile
 using StaticArrays
-using LinearAlgebra
 
 import Base: RefValue
 
