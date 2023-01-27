@@ -65,6 +65,7 @@ struct MC{F,I}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
     normal_sign::Int  # direction of normal vectors (+1 for outward / -1 for inward)
+    normal_sign ∈ (-1, +1) || throw(ArgumentError("`normal_sign` should be either -1 or +1")) 
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
@@ -611,13 +612,13 @@ Adds a vertex on the current horizontal edge.
 add_x_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
     @inbounds begin
         u = cb[1] / (cb[1] - cb[2])
-        m.nrm[1] = m.normal_sign * (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i + 1, j, k, m.nx)
-        m.nrm[2] = m.normal_sign * (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i + 1, j, k, m.ny)
-        m.nrm[3] = m.normal_sign * (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i + 1, j, k, m.nz)
-        (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
+        m.nrm[1] = (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i + 1, j, k, m.nx)
+        m.nrm[2] = (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i + 1, j, k, m.ny)
+        m.nrm[3] = (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i + 1, j, k, m.nz)
+        (mag = normal_sign norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1 + u, j - 1, k - 1))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -630,7 +631,7 @@ add_y_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1 + u, k - 1))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
@@ -643,7 +644,7 @@ add_z_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1, j - 1, k - 1 + u))
-    push!(m.normals, Normal(m.nrm))
+    push!(m.normals, Normal(m.normal_sign * m.nrm))
     length(m.vertices)
 end
 
