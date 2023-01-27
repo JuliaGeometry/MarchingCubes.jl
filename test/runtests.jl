@@ -118,7 +118,7 @@ end
     m2 = MC(dat,normal_sign=-1)
     march(m2)
 
-    @test norm(m1.normals,m1.normals) ≈ norm(m2.normals,m2.normals)
+    @test norm(m1.normals) ≈ norm(m2.normals)
 
     @test_throws ArgumentError MC(mc,normal_sign=2)
     @test_throws ArgumentError MC(mc,normal_sign=-2)
