@@ -1,11 +1,12 @@
 name = "MarchingCubes"
 uuid = "299715c1-40a9-479a-aaf9-4a633d36f717"
+license = "MIT"
 desc = "Efficient Implementation of Marching Cubes' Cases with Topological Guarantees"
 authors = ["T Bltg <tf.bltg@gmail.com>"]
-license = "MIT"
 version = "0.1.5"
 
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
