@@ -118,7 +118,7 @@ end
     m2 = MC(dat,normal_sign=-1)
     march(m2)
 
-    @test all(norm.(m1.normals) .≈ norm.(m2.normals))
+    @test all(MarchingCubes.norm.(m1.normals) .≈ MarchingCubes.norm.(m2.normals))
 
     @test_throws ArgumentError MC(dat; normal_sign=+2)
     @test_throws ArgumentError MC(dat; normal_sign=-2)
