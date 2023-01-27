@@ -1,4 +1,4 @@
-scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2) = begin
+scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw...) = begin
     vol = zeros(F, nx, ny, nz)
 
     sx, sy, sz = size(vol) ./ F(16)
@@ -39,7 +39,7 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2) = be
         vol[i, j, k] = callback((i - 1) / sx - tx, (j - 1) / sy - ty, (k - 1) / sz - tz)
     end
 
-    MC(vol, I)
+    MC(vol, I; kw...)
 end
 
 output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
