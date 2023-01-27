@@ -615,7 +615,7 @@ add_x_vertex(m::MC{F}, vol, cb, i, j, k) where {F} = begin
         m.nrm[1] = (1 - u) * ∇x(vol, i, j, k, m.nx) + u * ∇x(vol, i + 1, j, k, m.nx)
         m.nrm[2] = (1 - u) * ∇y(vol, i, j, k, m.ny) + u * ∇y(vol, i + 1, j, k, m.ny)
         m.nrm[3] = (1 - u) * ∇z(vol, i, j, k, m.nz) + u * ∇z(vol, i + 1, j, k, m.nz)
-        (mag = normal_sign norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
+        (mag = norm(m.nrm)) > eps(F) && (m.nrm ./= mag)
     end
     push!(m.vertices, Vertex(i - 1 + u, j - 1, k - 1))
     push!(m.normals, Normal(m.normal_sign * m.nrm))
