@@ -1,5 +1,6 @@
 using BenchmarkTools
 using GeometryBasics
+using LinearAlgebra
 using MarchingCubes
 using Meshes
 using PlyIO
