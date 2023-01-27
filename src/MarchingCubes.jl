@@ -71,7 +71,7 @@ struct MC{F,I}
         x::AbstractVector{F} = F[],
         y::AbstractVector{F} = F[],
         z::AbstractVector{F} = F[],
-        normal_sign::Type{G} = Int,
+        normal_sign::Type{Int} = Int,
     ) where {F<:AbstractFloat,G<:Integer} = begin
         m = new{F,I}(
             size(vol)...,
