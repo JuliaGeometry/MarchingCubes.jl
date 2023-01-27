@@ -87,7 +87,7 @@ struct MC{F,I}
             Ref(x),
             Ref(y),
             Ref(z),
-            1,
+            normal_sign,
         )
         m.normal_sign ∈ (-1, +1) || throw(ArgumentError("`normal_sign` should be either -1 or +1")) 
         sz = size(vol) |> prod
