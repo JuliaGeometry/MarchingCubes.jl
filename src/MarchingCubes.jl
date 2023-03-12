@@ -697,7 +697,7 @@ end
 include("example.jl")
 
 @precompile_all_calls begin
-    march(MarchingCubes.scenario(4, 4, 4; F = Float64, I = Int))
+    march(scenario(4, 4, 4; F = Float64, I = Int))
 end
 
 end
