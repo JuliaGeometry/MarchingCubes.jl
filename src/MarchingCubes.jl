@@ -61,10 +61,10 @@ struct MC{F,I}
     triangles::Vector{Triangle}  # output triangles
     vertices::Vector{Vertex{F}}  # output vertex positions
     normals::Vector{Normal{F}}  # output vertex normals
+    normal_sign::Int  # direction of normal vectors (+1 for outward / -1 for inward)
     x::RefValue{Vector{F}}
     y::RefValue{Vector{F}}
     z::RefValue{Vector{F}}
-    normal_sign::Int  # direction of normal vectors (+1 for outward / -1 for inward)
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
@@ -73,8 +73,7 @@ struct MC{F,I}
         y::AbstractVector{F} = F[],
         z::AbstractVector{F} = F[],
     ) where {F<:AbstractFloat,G<:Integer} = begin
-        normal_sign ∈ (-1, +1) ||
-        throw(ArgumentError("`normal_sign` should be either -1 or +1"))
+        abs(normal_sign) == 1 || throw(ArgumentError("`normal_sign` should be either -1 or +1"))
         m = new{F,I}(
             size(vol)...,
             Ref(vol),
@@ -86,10 +85,10 @@ struct MC{F,I}
             Triangle[],
             Vertex[],
             Normal[],
+            normal_sign,
             Ref(x),
             Ref(y),
             Ref(z),
-            normal_sign,
         )
         sz = size(vol) |> prod
         sizehint!(m.triangles, nextpow(2, sz ÷ 6))
