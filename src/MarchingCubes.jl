@@ -19,7 +19,7 @@ Adapted to `Julia` by T Bltg (github.com/t-bltg).
 
 module MarchingCubes
 
-using SnoopPrecompile
+using PrecompileTools
 using StaticArrays
 
 import Base: RefValue
@@ -695,7 +695,7 @@ end
 
 include("example.jl")
 
-@precompile_all_calls begin
+@compile_workload begin
     march(scenario(4, 4, 4; F = Float64, I = Int))
 end
 
