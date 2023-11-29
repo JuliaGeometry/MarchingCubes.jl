@@ -43,6 +43,9 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw..
 end
 
 output(PlyIO::Module, m::MC{F,I}, fn::AbstractString = "test.ply") where {F,I} = begin
+    nv, nt = length(m.vertices), length(m.triangles)
+    println("Writing $nv vertices and $nt triangles using `PlyIO`.")
+
     ply = PlyIO.Ply()
     push!(
         ply,
@@ -56,16 +59,14 @@ output(PlyIO::Module, m::MC{F,I}, fn::AbstractString = "test.ply") where {F,I} =
             PlyIO.ArrayProperty("nz", getindex.(m.normals, 3)),
         ),
     )
+
     vertex_indices = PlyIO.ListProperty("vertex_indices", I, eltype(Triangle))
-    println(
-        "Writing $(length(m.vertices)) vertices and $(length(m.triangles)) triangles using `PlyIO`.",
-    )
     for i ∈ eachindex(m.triangles)
         push!(vertex_indices, m.triangles[i] .- 1)  # 1-based indexing -> 0-based indexing
     end
     push!(ply, PlyIO.PlyElement("face", vertex_indices))
 
-    PlyIO.save_ply(ply, fn, ascii = true)
+    PlyIO.save_ply(ply, fn; ascii = true)
     nothing
 end
 
