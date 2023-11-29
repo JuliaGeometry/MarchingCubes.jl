@@ -1,42 +1,59 @@
+@inline cb_cushin(x, y, z, _...) = (
+    z^2 * x^2 - z^4 - 2z * x^2 + 2z^3 + x^2 - z^2 - (x^2 - z)^2 - y^4 - 2x^2 * y^2 -
+    y^2 * z^2 +
+    2y^2 * z +
+    y^2
+)
+@inline cb_torus2(x, y, z, r, R) = (
+    ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
+    ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
+)
+@inline cb_sphere(x, y, z, _...) = (
+    ((x - 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
+    ((x + 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
+    ((x - 2)^2 + (y + 2)^2 + (z - 2)^2 - 1)
+)
+@inline cb_plane(x, y, z, _...) = x + y + z - 3
+@inline cb_cassini(x::F, y::F, z::F, _...) where {F} =
+    (x^2 + y^2 + z^2 + F(0.45)^2)^2 - 16 * F(0.45)^2 * (x^2 + z^2) - F(0.5)^2
+@inline cb_blooby(x::F, y::F, z::F, _...) where {F} =
+    x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
+@inline cb_hyperboloid(x, y, z, _...) = x^2 + y^2 - z^2 - 1
+
+callback(case) = if case ≡ :cushin
+    cb_cushin
+elseif case ≡ :torus2
+    cb_torus2
+elseif case ≡ :sphere
+    cb_sphere
+elseif case ≡ :plane
+    cb_plane
+elseif case ≡ :cassini
+    cb_cassini
+elseif case ≡ :blooby
+    cb_blooby
+elseif case ≡ :hyperboloid
+    cb_hyperboloid
+end::Function
+
 scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw...) = begin
     vol = zeros(F, nx, ny, nz)
 
-    sx, sy, sz = size(vol) ./ F(16)
-    tx = F(nx) / 2sx
-    ty = F(ny) / 2sy + F(1.5)
-    tz = F(nz) / 2sz
+    sx, sy, sz = F.(size(vol) ./ 16)
+    tx = F(nx / 2sx)
+    ty = F(ny / 2sy + 1.5)
+    tz = F(nz / 2sz)
 
-    r = F(1.85)
-    R = F(4)
+    cb = callback(case)
 
-    callback = if case ≡ :cushin
-        (x, y, z) ->
-            z^2 * x^2 - z^4 - 2z * x^2 + 2z^3 + x^2 - z^2 - (x^2 - z)^2 - y^4 - 2x^2 * y^2 - y^2 * z^2 +
-            2y^2 * z +
-            y^2
-    elseif case ≡ :torus2
-        (x, y, z) ->
-            ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
-            ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
-    elseif case ≡ :sphere
-        (x, y, z) -> (
-            ((x - 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
-            ((x + 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
-            ((x - 2)^2 + (y + 2)^2 + (z - 2)^2 - 1)
+    @inbounds for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
+        vol[i, j, k] = cb(
+            F((i - 1) / sx - tx),
+            F((j - 1) / sy - ty),
+            F((k - 1) / sz - tz),
+            F(1.85),
+            F(4),
         )
-    elseif case ≡ :plane
-        (x, y, z) -> x + y + z - 3
-    elseif case ≡ :cassini
-        (x, y, z) ->
-            (x^2 + y^2 + z^2 + F(0.45)^2)^2 - 16 * F(0.45)^2 * (x^2 + z^2) - F(0.5)^2
-    elseif case ≡ :blooby
-        (x, y, z) -> x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
-    elseif case ≡ :hyperboloid
-        (x, y, z) -> x^2 + y^2 - z^2 - 1
-    end
-
-    for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
-        vol[i, j, k] = callback((i - 1) / sx - tx, (j - 1) / sy - ty, (k - 1) / sz - tz)
     end
 
     MC(vol, I; kw...)
