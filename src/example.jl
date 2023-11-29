@@ -20,34 +20,16 @@
     x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
 @inline cb_hyperboloid(x, y, z, _...) = x^2 + y^2 - z^2 - 1
 
-callback(case) = if case ≡ :cushin
-    cb_cushin
-elseif case ≡ :torus2
-    cb_torus2
-elseif case ≡ :sphere
-    cb_sphere
-elseif case ≡ :plane
-    cb_plane
-elseif case ≡ :cassini
-    cb_cassini
-elseif case ≡ :blooby
-    cb_blooby
-elseif case ≡ :hyperboloid
-    cb_hyperboloid
-end::Function
+fill_volume!(vol::AbstractArray{F}, callback::Function) where {F} = begin
+    nx, ny, nz = sz = size(vol)
 
-scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw...) = begin
-    vol = zeros(F, nx, ny, nz)
-
-    sx, sy, sz = F.(size(vol) ./ 16)
+    sx, sy, sz = F.(sz ./ 16)
     tx = F(nx / 2sx)
     ty = F(ny / 2sy + 1.5)
     tz = F(nz / 2sz)
 
-    cb = callback(case)
-
     @inbounds for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
-        vol[i, j, k] = cb(
+        vol[i, j, k] = callback(
             F((i - 1) / sx - tx),
             F((j - 1) / sy - ty),
             F((k - 1) / sz - tz),
@@ -55,6 +37,30 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw..
             F(4),
         )
     end
+
+    nothing
+end
+
+scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw...) = begin
+    vol = zeros(F, nx, ny, nz)
+
+    callback = if case ≡ :cushin
+        cb_cushin
+    elseif case ≡ :torus2
+        cb_torus2
+    elseif case ≡ :sphere
+        cb_sphere
+    elseif case ≡ :plane
+        cb_plane
+    elseif case ≡ :cassini
+        cb_cassini
+    elseif case ≡ :blooby
+        cb_blooby
+    elseif case ≡ :hyperboloid
+        cb_hyperboloid
+    end::Function
+
+    fill_volume!(vol, callback)
 
     MC(vol, I; kw...)
 end
