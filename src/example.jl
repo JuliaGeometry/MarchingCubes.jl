@@ -20,17 +20,16 @@
     x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
 @inline cb_hyperboloid(x, y, z) = x^2 + y^2 - z^2 - 1
 
-fill_volume!(vol::AbstractArray{F}, callback::Function) where {F} = begin
-    nx, ny, nz = sz = size(vol)
+fill_volume!(vol::AbstractArray{F}, cb::Function) where {F} = begin
+    nx, ny, nz = shape = size(vol)
 
-    sx, sy, sz = F.(sz ./ 16)
+    sx, sy, sz = F.(shape ./ 16)
     tx = F(nx / 2sx)
     ty = F(ny / 2sy + 1.5)
     tz = F(nz / 2sz)
 
     @inbounds for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
-        vol[i, j, k] =
-            callback(F((i - 1) / sx - tx), F((j - 1) / sy - ty), F((k - 1) / sz - tz))
+        vol[i, j, k] = cb(F((i - 1) / sx - tx), F((j - 1) / sy - ty), F((k - 1) / sz - tz))
     end
 
     nothing
