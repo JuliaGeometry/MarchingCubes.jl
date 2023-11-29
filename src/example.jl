@@ -42,23 +42,24 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw..
     MC(vol, I; kw...)
 end
 
-output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
+output(PlyIO::Module, m::MC{F,I}, fn::AbstractString = "test.ply") where {F,I} = begin
     ply = PlyIO.Ply()
     push!(
         ply,
         PlyIO.PlyElement(
             "vertex",
-            PlyIO.ArrayProperty("x", map(v -> Float32(v[1]), m.vertices)),
-            PlyIO.ArrayProperty("y", map(v -> Float32(v[2]), m.vertices)),
-            PlyIO.ArrayProperty("z", map(v -> Float32(v[3]), m.vertices)),
-            PlyIO.ArrayProperty("nx", map(n -> Float32(n[1]), m.normals)),
-            PlyIO.ArrayProperty("ny", map(n -> Float32(n[2]), m.normals)),
-            PlyIO.ArrayProperty("nz", map(n -> Float32(n[3]), m.normals)),
+            PlyIO.ArrayProperty("x", getindex.(m.vertices, 1)),
+            PlyIO.ArrayProperty("y", getindex.(m.vertices, 2)),
+            PlyIO.ArrayProperty("z", getindex.(m.vertices, 3)),
+            PlyIO.ArrayProperty("nx", getindex.(m.normals, 1)),
+            PlyIO.ArrayProperty("ny", getindex.(m.normals, 2)),
+            PlyIO.ArrayProperty("nz", getindex.(m.normals, 3)),
         ),
     )
-    vertex_indices = PlyIO.ListProperty("vertex_indices", UInt8, Int32)
+    vertex_indices = PlyIO.ListProperty("vertex_indices", I, eltype(Triangle))
+    println("Writing $(length(m.vertices)) vertices and $(length(m.triangles)) triangles using `PlyIO`.")
     for i ∈ eachindex(m.triangles)
-        push!(vertex_indices, m.triangles[i] .- 1)
+        push!(vertex_indices, m.triangles[i] .- 1)  # 1-based indexing -> 0-based indexing
     end
     push!(ply, PlyIO.PlyElement("face", vertex_indices))
 
