@@ -1,24 +1,24 @@
-@inline cb_cushin(x, y, z, _...) = (
+@inline cb_cushin(x, y, z) = (
     z^2 * x^2 - z^4 - 2z * x^2 + 2z^3 + x^2 - z^2 - (x^2 - z)^2 - y^4 - 2x^2 * y^2 -
     y^2 * z^2 +
     2y^2 * z +
     y^2
 )
-@inline cb_torus2(x, y, z, r, R) = (
+@inline cb_torus2(x::F, y::F, z::F, r = F(1.85), R = F(4)) where {F} = (
     ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
     ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
 )
-@inline cb_sphere(x, y, z, _...) = (
+@inline cb_sphere(x, y, z) = (
     ((x - 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
     ((x + 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
     ((x - 2)^2 + (y + 2)^2 + (z - 2)^2 - 1)
 )
-@inline cb_plane(x, y, z, _...) = x + y + z - 3
-@inline cb_cassini(x::F, y::F, z::F, _...) where {F} =
+@inline cb_plane(x, y, z) = x + y + z - 3
+@inline cb_cassini(x::F, y::F, z::F) where {F} =
     (x^2 + y^2 + z^2 + F(0.45)^2)^2 - 16 * F(0.45)^2 * (x^2 + z^2) - F(0.5)^2
-@inline cb_blooby(x::F, y::F, z::F, _...) where {F} =
+@inline cb_blooby(x::F, y::F, z::F) where {F} =
     x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
-@inline cb_hyperboloid(x, y, z, _...) = x^2 + y^2 - z^2 - 1
+@inline cb_hyperboloid(x, y, z) = x^2 + y^2 - z^2 - 1
 
 fill_volume!(vol::AbstractArray{F}, callback::Function) where {F} = begin
     nx, ny, nz = sz = size(vol)
@@ -29,13 +29,8 @@ fill_volume!(vol::AbstractArray{F}, callback::Function) where {F} = begin
     tz = F(nz / 2sz)
 
     @inbounds for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
-        vol[i, j, k] = callback(
-            F((i - 1) / sx - tx),
-            F((j - 1) / sy - ty),
-            F((k - 1) / sz - tz),
-            F(1.85),
-            F(4),
-        )
+        vol[i, j, k] =
+            callback(F((i - 1) / sx - tx), F((j - 1) / sy - ty), F((k - 1) / sz - tz))
     end
 
     nothing
