@@ -1,68 +1,89 @@
+@inline cb_cushin(x, y, z) = (
+    z^2 * x^2 - z^4 - 2z * x^2 + 2z^3 + x^2 - z^2 - (x^2 - z)^2 - y^4 - 2x^2 * y^2 -
+    y^2 * z^2 +
+    2y^2 * z +
+    y^2
+)
+@inline cb_torus2(x::F, y::F, z::F, r = F(1.85), R = F(4)) where {F} = (
+    ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
+    ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
+)
+@inline cb_sphere(x, y, z) = (
+    ((x - 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
+    ((x + 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
+    ((x - 2)^2 + (y + 2)^2 + (z - 2)^2 - 1)
+)
+@inline cb_plane(x, y, z) = x + y + z - 3
+@inline cb_cassini(x::F, y::F, z::F) where {F} =
+    (x^2 + y^2 + z^2 + F(0.45)^2)^2 - 16 * F(0.45)^2 * (x^2 + z^2) - F(0.5)^2
+@inline cb_blooby(x::F, y::F, z::F) where {F} =
+    x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
+@inline cb_hyperboloid(x, y, z) = x^2 + y^2 - z^2 - 1
+
+fill_volume!(vol::AbstractArray{F}, cb::Function) where {F} = begin
+    nx, ny, nz = shape = size(vol)
+
+    sx, sy, sz = F.(shape ./ 16)
+    tx = F(nx / 2sx)
+    ty = F(ny / 2sy + 1.5)
+    tz = F(nz / 2sz)
+
+    @inbounds for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
+        vol[i, j, k] = cb(F((i - 1) / sx - tx), F((j - 1) / sy - ty), F((k - 1) / sz - tz))
+    end
+
+    nothing
+end
+
 scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw...) = begin
     vol = zeros(F, nx, ny, nz)
 
-    sx, sy, sz = size(vol) ./ F(16)
-    tx = F(nx) / 2sx
-    ty = F(ny) / 2sy + F(1.5)
-    tz = F(nz) / 2sz
-
-    r = F(1.85)
-    R = F(4)
-
     callback = if case ≡ :cushin
-        (x, y, z) ->
-            z^2 * x^2 - z^4 - 2z * x^2 + 2z^3 + x^2 - z^2 - (x^2 - z)^2 - y^4 - 2x^2 * y^2 - y^2 * z^2 +
-            2y^2 * z +
-            y^2
+        cb_cushin
     elseif case ≡ :torus2
-        (x, y, z) ->
-            ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
-            ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
+        cb_torus2
     elseif case ≡ :sphere
-        (x, y, z) -> (
-            ((x - 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
-            ((x + 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
-            ((x - 2)^2 + (y + 2)^2 + (z - 2)^2 - 1)
-        )
+        cb_sphere
     elseif case ≡ :plane
-        (x, y, z) -> x + y + z - 3
+        cb_plane
     elseif case ≡ :cassini
-        (x, y, z) ->
-            (x^2 + y^2 + z^2 + F(0.45)^2)^2 - 16 * F(0.45)^2 * (x^2 + z^2) - F(0.5)^2
+        cb_cassini
     elseif case ≡ :blooby
-        (x, y, z) -> x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
+        cb_blooby
     elseif case ≡ :hyperboloid
-        (x, y, z) -> x^2 + y^2 - z^2 - 1
-    end
+        cb_hyperboloid
+    end::Function
 
-    for k ∈ 1:nz, j ∈ 1:ny, i ∈ 1:nx
-        vol[i, j, k] = callback((i - 1) / sx - tx, (j - 1) / sy - ty, (k - 1) / sz - tz)
-    end
+    fill_volume!(vol, callback)
 
     MC(vol, I; kw...)
 end
 
-output(PlyIO::Module, m::MC, fn::AbstractString = "test.ply") = begin
+output(PlyIO::Module, m::MC{F,I}, fn::AbstractString = "test.ply") where {F,I} = begin
+    nv, nt = length(m.vertices), length(m.triangles)
+    println("Writing $nv vertices and $nt triangles using `PlyIO`.")
+
     ply = PlyIO.Ply()
     push!(
         ply,
         PlyIO.PlyElement(
             "vertex",
-            PlyIO.ArrayProperty("x", map(v -> Float32(v[1]), m.vertices)),
-            PlyIO.ArrayProperty("y", map(v -> Float32(v[2]), m.vertices)),
-            PlyIO.ArrayProperty("z", map(v -> Float32(v[3]), m.vertices)),
-            PlyIO.ArrayProperty("nx", map(n -> Float32(n[1]), m.normals)),
-            PlyIO.ArrayProperty("ny", map(n -> Float32(n[2]), m.normals)),
-            PlyIO.ArrayProperty("nz", map(n -> Float32(n[3]), m.normals)),
+            PlyIO.ArrayProperty("x", getindex.(m.vertices, 1)),
+            PlyIO.ArrayProperty("y", getindex.(m.vertices, 2)),
+            PlyIO.ArrayProperty("z", getindex.(m.vertices, 3)),
+            PlyIO.ArrayProperty("nx", getindex.(m.normals, 1)),
+            PlyIO.ArrayProperty("ny", getindex.(m.normals, 2)),
+            PlyIO.ArrayProperty("nz", getindex.(m.normals, 3)),
         ),
     )
-    vertex_indices = PlyIO.ListProperty("vertex_indices", UInt8, Int32)
+
+    vertex_indices = PlyIO.ListProperty("vertex_indices", I, eltype(Triangle))
     for i ∈ eachindex(m.triangles)
-        push!(vertex_indices, m.triangles[i] .- 1)
+        push!(vertex_indices, m.triangles[i] .- 1)  # 1-based indexing -> 0-based indexing
     end
     push!(ply, PlyIO.PlyElement("face", vertex_indices))
 
-    PlyIO.save_ply(ply, fn, ascii = true)
+    PlyIO.save_ply(ply, fn; ascii = true)
     nothing
 end
 
