@@ -5,18 +5,81 @@ using Meshes
 using PlyIO
 using Test
 
+@testset "cushin" begin
+    mc = MarchingCubes.scenario(case = :cushin)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 302
+    @test length(mc.triangles) == 600
+    @test sum(mc.triangles) == [88_810, 92_082, 91_975]
+end
+
+@testset "torus2" begin
+    mc = MarchingCubes.scenario(case = :torus2)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 11_333
+    @test length(mc.triangles) == 22_620
+    @test sum(mc.triangles) == [127_813_396, 128_380_399, 128_374_999]
+end
+
+@testset "sphere" begin
+    mc = MarchingCubes.scenario(case = :sphere)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 792
+    @test length(mc.triangles) == 1572
+    @test sum(mc.triangles) == [614_971, 624_389, 630_865]
+end
+
+@testset "plane" begin
+    mc = MarchingCubes.scenario(case = :plane)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 7_038
+    @test length(mc.triangles) == 13_720
+    @test sum(mc.triangles) == [47_894_663, 47_913_678, 48_518_860]
+end
+
+@testset "cassini" begin
+    mc = MarchingCubes.scenario(case = :cassini)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 554
+    @test length(mc.triangles) == 1_104
+    @test sum(mc.triangles) == [300_530, 308_212, 310_781]
+end
+
+@testset "blooby" begin
+    mc = MarchingCubes.scenario(case = :blooby)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 2_168
+    @test length(mc.triangles) == 4_352
+    @test sum(mc.triangles) == [4_671_795, 4_741_706, 4_748_335]
+end
+
+@testset "hyperboloid" begin
+    mc = MarchingCubes.scenario(case = :hyperboloid)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 12_297
+    @test length(mc.triangles) == 24_118
+    @test sum(mc.triangles) == [147_850_754, 148_522_888, 148_543_731]
+end
+
 @testset "march" begin
     mc = MarchingCubes.scenario()
 
     march(mc)
     @test length(mc.vertices) == 11_333
     @test length(mc.triangles) == 22_620
-    MarchingCubes.output(PlyIO, mc, tempname())
+    MarchingCubes.output(PlyIO, mc, tempname(); verbose = false)
 
     march_legacy(mc)
     @test length(mc.vertices) == 11_333
     @test length(mc.triangles) == 22_732
-    MarchingCubes.output(PlyIO, mc, tempname())
+    MarchingCubes.output(PlyIO, mc, tempname(); verbose = false)
 end
 
 @testset "types" begin
@@ -45,62 +108,6 @@ end
         @test all(map(v -> start_y ≤ v[2] ≤ stop_y, mc.vertices))
         @test all(map(v -> start_z ≤ v[3] ≤ stop_z, mc.vertices))
     end
-end
-
-@testset "cushin" begin
-    mc = MarchingCubes.scenario(case = :cushin)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 302
-    @test length(mc.triangles) == 600
-end
-
-@testset "torus2" begin
-    mc = MarchingCubes.scenario(case = :torus2)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 11_333
-    @test length(mc.triangles) == 22_620
-end
-
-@testset "sphere" begin
-    mc = MarchingCubes.scenario(case = :sphere)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 792
-    @test length(mc.triangles) == 1572
-end
-
-@testset "plane" begin
-    mc = MarchingCubes.scenario(case = :plane)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 7_038
-    @test length(mc.triangles) == 13_720
-end
-
-@testset "cassini" begin
-    mc = MarchingCubes.scenario(case = :cassini)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 554
-    @test length(mc.triangles) == 1_104
-end
-
-@testset "blooby" begin
-    mc = MarchingCubes.scenario(case = :blooby)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 2_168
-    @test length(mc.triangles) == 4_352
-end
-
-@testset "hyperboloid" begin
-    mc = MarchingCubes.scenario(case = :hyperboloid)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 12_297
-    @test length(mc.triangles) == 24_118
 end
 
 @testset "isovalue" begin
