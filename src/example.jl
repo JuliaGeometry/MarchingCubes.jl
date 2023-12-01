@@ -59,9 +59,9 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw..
     MC(vol, I; kw...)
 end
 
-output(PlyIO::Module, m::MC{F,I}, fn::AbstractString = "test.ply") where {F,I} = begin
+output(PlyIO::Module, m::MC{F,I}, fn::AbstractString = "test.ply"; verbose = true) where {F,I} = begin
     nv, nt = length(m.vertices), length(m.triangles)
-    println("Writing $nv vertices and $nt triangles using `PlyIO`.")
+    verbose && println("Writing $nv vertices and $nt triangles using `PlyIO`.")
 
     ply = PlyIO.Ply()
     push!(
