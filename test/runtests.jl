@@ -19,7 +19,7 @@ end
     bytes = @allocated march(mc)
     @test bytes == 0
     @test length(mc.vertices) == 792
-    @test length(mc.triangles) == 1572
+    @test length(mc.triangles) == 1_572
     @test sum(mc.triangles) == [614_971, 624_389, 630_865]
 end
 
