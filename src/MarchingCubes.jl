@@ -432,7 +432,7 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
                 Ct = cb[1] + (cb[4] - cb[1]) * t
                 Dt = cb[2] + (cb[3] - cb[2]) * t
             elseif edge == 7
-                t = cb[7] / (cb[7] - cb[6])
+                t = cb[7] / (cb[7] - cb[8])
                 Bt = cb[6] + (cb[5] - cb[6]) * t
                 Ct = cb[2] + (cb[1] - cb[2]) * t
                 Dt = cb[3] + (cb[4] - cb[3]) * t
