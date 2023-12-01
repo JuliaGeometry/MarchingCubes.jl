@@ -14,15 +14,6 @@ using Test
     @test sum(mc.triangles) == [88_810, 92_082, 91_975]
 end
 
-@testset "torus2" begin
-    mc = MarchingCubes.scenario(case = :torus2)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 11_333
-    @test length(mc.triangles) == 22_620
-    @test sum(mc.triangles) == [127_813_396, 128_380_399, 128_374_999]
-end
-
 @testset "sphere" begin
     mc = MarchingCubes.scenario(case = :sphere)
     bytes = @allocated march(mc)
@@ -57,6 +48,51 @@ end
     @test length(mc.vertices) == 2_168
     @test length(mc.triangles) == 4_352
     @test sum(mc.triangles) == [4_671_795, 4_741_706, 4_748_335]
+end
+
+@testset "chair" begin
+    mc = MarchingCubes.scenario(case = :chair)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 5_304
+    @test length(mc.triangles) == 10_616
+    @test sum(mc.triangles) == [28_067_545, 28_149_436, 28_273_329]
+end
+
+@testset "cyclide" begin
+    mc = MarchingCubes.scenario(case = :cyclide)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 13_196
+    @test length(mc.triangles) == 25_834
+    @test sum(mc.triangles) == [170_038_561, 170_367_258, 170_310_528]
+end
+
+@testset "torus2" begin
+    mc = MarchingCubes.scenario(case = :torus2)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 11_333
+    @test length(mc.triangles) == 22_620
+    @test sum(mc.triangles) == [127_813_396, 128_380_399, 128_374_999]
+end
+
+@testset "mc_case" begin
+    mc = MarchingCubes.scenario(case = :mc_case)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 10_800
+    @test length(mc.triangles) == 20_886
+    @test sum(mc.triangles) == [112_250_441, 113_040_964, 113_019_216]
+end
+
+@testset "drip" begin
+    mc = MarchingCubes.scenario(case = :drip)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 5_789
+    @test length(mc.triangles) == 11_298
+    @test sum(mc.triangles) == [33_340_735, 33_136_911, 32_984_487]
 end
 
 @testset "hyperboloid" begin

@@ -4,10 +4,6 @@
     2y^2 * z +
     y^2
 )
-@inline cb_torus2(x::F, y::F, z::F, r = F(1.85), R = F(4)) where {F} = (
-    ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
-    ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
-)
 @inline cb_sphere(x, y, z) = (
     ((x - 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
     ((x + 2)^2 + (y - 2)^2 + (z - 2)^2 - 1) *
@@ -18,6 +14,26 @@
     (x^2 + y^2 + z^2 + F(0.45)^2)^2 - 16 * F(0.45)^2 * (x^2 + z^2) - F(0.5)^2
 @inline cb_blooby(x::F, y::F, z::F) where {F} =
     x^4 - 5x^2 + y^4 - 5y^2 + z^4 - 5z^2 + F(11.8)
+@inline cb_chair(x::F, y::F, z::F) where {F} =
+    ((x^2 + y^2 + z^2 - F(0.95) * 25)^2 - ((z - 5)^2 - 2x^2) * ((z + 5)^2 - 2y^2) * F(0.8))
+@inline cb_cyclide(x, y, z, a = 2, b = 2, c = 3, d = 6) =
+    (x^2 + y^2 + z^2 + b^2 - d^2)^2 - 4((a * x - c * d)^2 + b^2 * y^2)
+@inline cb_torus2(x::F, y::F, z::F, r = F(1.85), R = F(4)) where {F} = (
+    ((x^2 + y^2 + z^2 + R^2 - r^2)^2 - 4R^2 * (x^2 + y^2)) *
+    ((x^2 + (y + R)^2 + z^2 + R^2 - r^2)^2 - 4R^2 * ((y + R)^2 + z^2))
+)
+@inline cb_mc_case(x::F, y::F, z::F) where {F} = (
+    F(-26.5298) * (1 - x) * (1 - y) * (1 - z) +
+    F(+81.9199) * x * (1 - y) * (1 - z) +
+    F(-100.680) * x * y * (1 - z) +
+    F(+3.54980) * (1 - x) * y * (1 - z) +
+    F(+24.1201) * (1 - x) * (1 - y) * z +
+    F(-74.4702) * x * (1 - y) * z +
+    F(+91.5298) * x * y * z +
+    F(-3.22998) * (1 - x) * y * z
+)
+@inline cb_drip(x::F, y::F, z::F, a = 2, b = 2, c = 3, d = 6) where {F} =
+    x^2 + y^2 - F(0.5) * (F(0.995) * z^2 + F(0.005) - z^3) + F(0.0025)
 @inline cb_hyperboloid(x, y, z) = x^2 + y^2 - z^2 - 1
 
 fill_volume!(vol::AbstractArray{F}, cb::Function) where {F} = begin
@@ -40,8 +56,6 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw..
 
     callback = if case ≡ :cushin
         cb_cushin
-    elseif case ≡ :torus2
-        cb_torus2
     elseif case ≡ :sphere
         cb_sphere
     elseif case ≡ :plane
@@ -50,6 +64,16 @@ scenario(nx = 60, ny = 60, nz = 60; F = Float32, I = Int32, case = :torus2, kw..
         cb_cassini
     elseif case ≡ :blooby
         cb_blooby
+    elseif case ≡ :chair
+        cb_chair
+    elseif case ≡ :cyclide
+        cb_cyclide
+    elseif case ≡ :torus2
+        cb_torus2
+    elseif case ≡ :mc_case
+        cb_mc_case
+    elseif case ≡ :drip
+        cb_drip
     elseif case ≡ :hyperboloid
         cb_hyperboloid
     end::Function
