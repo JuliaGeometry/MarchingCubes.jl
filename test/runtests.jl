@@ -47,12 +47,20 @@ end
     end
 end
 
-@testset "plane" begin
-    mc = MarchingCubes.scenario(case = :plane)
+@testset "cushin" begin
+    mc = MarchingCubes.scenario(case = :cushin)
     bytes = @allocated march(mc)
     @test bytes == 0
-    @test length(mc.vertices) == 7_038
-    @test length(mc.triangles) == 13_720
+    @test length(mc.vertices) == 302
+    @test length(mc.triangles) == 600
+end
+
+@testset "torus2" begin
+    mc = MarchingCubes.scenario(case = :torus2)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 11_333
+    @test length(mc.triangles) == 22_620
 end
 
 @testset "sphere" begin
@@ -63,20 +71,12 @@ end
     @test length(mc.triangles) == 1572
 end
 
-@testset "hyperboloid" begin
-    mc = MarchingCubes.scenario(case = :hyperboloid)
+@testset "plane" begin
+    mc = MarchingCubes.scenario(case = :plane)
     bytes = @allocated march(mc)
     @test bytes == 0
-    @test length(mc.vertices) == 12_297
-    @test length(mc.triangles) == 24_118
-end
-
-@testset "cushin" begin
-    mc = MarchingCubes.scenario(case = :cushin)
-    bytes = @allocated march(mc)
-    @test bytes == 0
-    @test length(mc.vertices) == 302
-    @test length(mc.triangles) == 600
+    @test length(mc.vertices) == 7_038
+    @test length(mc.triangles) == 13_720
 end
 
 @testset "cassini" begin
@@ -93,6 +93,14 @@ end
     @test bytes == 0
     @test length(mc.vertices) == 2_168
     @test length(mc.triangles) == 4_352
+end
+
+@testset "hyperboloid" begin
+    mc = MarchingCubes.scenario(case = :hyperboloid)
+    bytes = @allocated march(mc)
+    @test bytes == 0
+    @test length(mc.vertices) == 12_297
+    @test length(mc.triangles) == 24_118
 end
 
 @testset "isovalue" begin
