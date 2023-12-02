@@ -102,4 +102,4 @@ main() = begin
   return
 end
 
-@main main()
+main()
