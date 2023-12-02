@@ -397,66 +397,66 @@ test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
             elseif case == 13
                 test12[cfg][4]
             elseif case == 14
-                tiling13_5_1[cfg][subcfg][1]
+                tiling13_5_1[cfg][subcfg][1] - 1
             else
-                0
+                -1
             end
-            if edge == 1
+            if edge == 0
                 t = cb[1] / (cb[1] - cb[2])
                 Bt = cb[4] + (cb[3] - cb[4]) * t
                 Ct = cb[8] + (cb[7] - cb[8]) * t
                 Dt = cb[5] + (cb[6] - cb[5]) * t
-            elseif edge == 2
+            elseif edge == 1
                 t = cb[2] / (cb[2] - cb[3])
                 Bt = cb[1] + (cb[4] - cb[1]) * t
                 Ct = cb[5] + (cb[8] - cb[5]) * t
                 Dt = cb[6] + (cb[7] - cb[6]) * t
-            elseif edge == 3
+            elseif edge == 2
                 t = cb[3] / (cb[3] - cb[4])
                 Bt = cb[2] + (cb[1] - cb[2]) * t
                 Ct = cb[6] + (cb[5] - cb[6]) * t
                 Dt = cb[7] + (cb[8] - cb[7]) * t
-            elseif edge == 4
+            elseif edge == 3
                 t = cb[4] / (cb[4] - cb[1])
                 Bt = cb[3] + (cb[2] - cb[3]) * t
                 Ct = cb[7] + (cb[6] - cb[7]) * t
                 Dt = cb[8] + (cb[5] - cb[8]) * t
-            elseif edge == 5
+            elseif edge == 4
                 t = cb[5] / (cb[5] - cb[6])
                 Bt = cb[8] + (cb[7] - cb[8]) * t
                 Ct = cb[4] + (cb[3] - cb[4]) * t
                 Dt = cb[1] + (cb[2] - cb[1]) * t
-            elseif edge == 6
+            elseif edge == 5
                 t = cb[6] / (cb[6] - cb[7])
                 Bt = cb[5] + (cb[8] - cb[5]) * t
                 Ct = cb[1] + (cb[4] - cb[1]) * t
                 Dt = cb[2] + (cb[3] - cb[2]) * t
-            elseif edge == 7
+            elseif edge == 6
                 t = cb[7] / (cb[7] - cb[8])
                 Bt = cb[6] + (cb[5] - cb[6]) * t
                 Ct = cb[2] + (cb[1] - cb[2]) * t
                 Dt = cb[3] + (cb[4] - cb[3]) * t
-            elseif edge == 8
+            elseif edge == 7
                 t = cb[8] / (cb[8] - cb[5])
                 Bt = cb[7] + (cb[6] - cb[7]) * t
                 Ct = cb[3] + (cb[2] - cb[3]) * t
                 Dt = cb[4] + (cb[1] - cb[4]) * t
-            elseif edge == 9
+            elseif edge == 8
                 t = cb[1] / (cb[1] - cb[5])
                 Bt = cb[4] + (cb[8] - cb[4]) * t
                 Ct = cb[3] + (cb[7] - cb[3]) * t
                 Dt = cb[2] + (cb[6] - cb[2]) * t
-            elseif edge == 10
+            elseif edge == 9
                 t = cb[2] / (cb[2] - cb[6])
                 Bt = cb[1] + (cb[5] - cb[1]) * t
                 Ct = cb[4] + (cb[8] - cb[4]) * t
                 Dt = cb[3] + (cb[7] - cb[3]) * t
-            elseif edge == 11
+            elseif edge == 10
                 t = cb[3] / (cb[3] - cb[7])
                 Bt = cb[2] + (cb[6] - cb[2]) * t
                 Ct = cb[1] + (cb[5] - cb[1]) * t
                 Dt = cb[4] + (cb[8] - cb[4]) * t
-            elseif edge == 12
+            elseif edge == 11
                 t = cb[4] / (cb[4] - cb[8])
                 Bt = cb[3] + (cb[7] - cb[3]) * t
                 Ct = cb[2] + (cb[6] - cb[2]) * t
