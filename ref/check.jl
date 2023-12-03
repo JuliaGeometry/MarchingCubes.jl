@@ -50,8 +50,7 @@ main() = begin
         io = PipeBuffer()
         pipeline(`./a.out $l $(i - 1) $(j - 1)`; stdout=io, stderr=devnull) |> run
         val = parse(Int, read(io, String) |> rstrip) + o
-        val == lut[i][j] || @show (i, j) val lut[i][j]
-        @assert val == lut[i][j]
+        @assert val == lut[i][j] ((i, j), val, lut[i][j])
       end
     end
   end
@@ -68,8 +67,7 @@ main() = begin
       io = PipeBuffer()
       pipeline(`./a.out $(100 + l) $(i - 1)`; stdout=io, stderr=devnull) |> run
       val = parse(Int, read(io, String) |> rstrip)
-      val == lut[i] || @show i val lut[i]
-      @assert val == lut[i]
+      @assert val == lut[i] (i, val, lut[i])
     end
   end
 
