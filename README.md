@@ -2,7 +2,7 @@
 [![CI](https://github.com/JuliaGeometry/MarchingCubes.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeometry/MarchingCubes.jl/actions/workflows/CI.yml)
 [![PkgEval](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/M/MarchingCubes.svg)](https://juliaci.github.io/NanosoldierReports/pkgeval_badges/report.html)
 [![Coverage Status](https://codecov.io/gh/JuliaGeometry/MarchingCubes.jl/branch/main/graphs/badge.svg)](https://app.codecov.io/gh/JuliaGeometry/MarchingCubes.jl)
-[![MarchingCubes Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/MarchingCubes)](https://pkgs.genieframework.com?packages=MarchingCubes)
+[![MarchingCubes Downloads](https://img.shields.io/badge/dynamic/json?url=http%3A%2F%2Fjuliapkgstats.com%2Fapi%2Fv1%2Fmonthly_downloads%2FMarchingCubes&query=total_requests&suffix=%2Fmonth&label=Downloads)](https://juliapkgstats.com/pkg/MarchingCubes)
 
 # MarchingCubes
 
