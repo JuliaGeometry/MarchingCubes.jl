@@ -117,7 +117,7 @@ output(
 end
 
 makemesh_Meshes(Meshes::Module, m::MC) = begin
-    points = map(Meshes.Point3 ∘ Tuple, m.vertices)
+    points = map(Meshes.Point ∘ Tuple, m.vertices)
     tris = Meshes.connect.(map(Tuple, m.triangles), Meshes.Triangle)
     Meshes.SimpleMesh(points, [tris;])
 end
