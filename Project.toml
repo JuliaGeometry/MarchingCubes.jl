@@ -3,7 +3,7 @@ uuid = "299715c1-40a9-479a-aaf9-4a633d36f717"
 license = "MIT"
 desc = "Efficient Implementation of Marching Cubes' Cases with Topological Guarantees"
 authors = ["T Bltg <tf.bltg@gmail.com>"]
-version = "0.1.9"
+version = "0.1.10"
 
 [deps]
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
