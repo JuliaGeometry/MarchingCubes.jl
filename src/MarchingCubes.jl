@@ -369,7 +369,7 @@ end
     test_interior(case, cb, cfg, subcfg, s)
 
 # Description
-Tests if the components of the tesselation of the cube should be connected through the interior of the cube.
+Tests if the components of the tessellation of the cube should be connected through the interior of the cube.
 """
 test_interior(case, cb::MVector{N,T}, cfg, subcfg, s) where {N,T} = begin
     test = 0
@@ -489,7 +489,7 @@ end
     test_face(cb, face)
 
 # Description
-Tests if the components of the tesselation of the cube should be connected by the interior of an ambiguous face.
+Tests if the components of the tessellation of the cube should be connected by the interior of an ambiguous face.
 """
 test_face(cb::MVector{N,T}, face) where {N,T} = begin
     @inbounds begin
