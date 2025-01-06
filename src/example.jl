@@ -126,7 +126,7 @@ makemesh_GeometryBasics(GeometryBasics::Module, m::MC) = begin
     vertices = map(GeometryBasics.Point3f, m.vertices)
     normals = map(GeometryBasics.Vec3f, m.normals)
     triangles = map(t -> GeometryBasics.TriangleFace(t...), m.triangles)
-    GeometryBasics.Mesh(vertices, triangles; normal=normals)
+    GeometryBasics.Mesh(vertices, triangles; normal = normals)
 end
 
 makemesh(mod::Module, m::MC) =
