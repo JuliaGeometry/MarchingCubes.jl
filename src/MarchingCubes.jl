@@ -69,10 +69,19 @@ struct MC{F,I}
         vol::Array{F,3},
         I::Type{G} = Int;
         normal_sign::Integer = 1,
-        x::AbstractVector{F} = F[],
-        y::AbstractVector{F} = F[],
-        z::AbstractVector{F} = F[],
+        x::Union{AbstractVector{F}, AbstractRange{F}} = F[],
+        y::Union{AbstractVector{F}, AbstractRange{F}} = F[],
+        z::Union{AbstractVector{F}, AbstractRange{F}} = F[],
     ) where {F<:AbstractFloat,G<:Integer} = begin
+        if isa(x,AbstractRange)
+            x = collect(x)
+        end
+        if isa(y,AbstractRange)
+            y = collect(y)
+        end
+        if isa(z,AbstractRange)
+            z = collect(z)
+        end
         abs(normal_sign) == 1 || throw(ArgumentError("`normal_sign` should be either -1 or +1"))
         m = new{F,I}(
             size(vol)...,
