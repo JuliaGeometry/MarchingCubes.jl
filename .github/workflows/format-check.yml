@@ -30,6 +30,7 @@ jobs:
             else
                 @error "Some files have not been formatted !!!"
                 write(stdout, out)
+                run(`git diff`)
                 exit(1)
             end
           '
