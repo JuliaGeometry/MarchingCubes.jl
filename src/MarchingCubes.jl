@@ -62,26 +62,17 @@ struct MC{F,I}
     vertices::Vector{Vertex{F}}  # output vertex positions
     normals::Vector{Normal{F}}  # output vertex normals
     normal_sign::Int  # direction of normal vectors (+1 for outward / -1 for inward)
-    x::RefValue{Vector{F}}
-    y::RefValue{Vector{F}}
-    z::RefValue{Vector{F}}
+    x::RefValue{<:AbstractVector{F}}
+    y::RefValue{<:AbstractVector{F}}
+    z::RefValue{<:AbstractVector{F}}
     MC(
         vol::Array{F,3},
         I::Type{G} = Int;
         normal_sign::Integer = 1,
-        x::Union{AbstractVector{F}, AbstractRange{F}} = F[],
-        y::Union{AbstractVector{F}, AbstractRange{F}} = F[],
-        z::Union{AbstractVector{F}, AbstractRange{F}} = F[],
+        x::AbstractVector{F} = F[],
+        y::AbstractVector{F} = F[],
+        z::AbstractVector{F} = F[],
     ) where {F<:AbstractFloat,G<:Integer} = begin
-        if isa(x,AbstractRange)
-            x = collect(x)
-        end
-        if isa(y,AbstractRange)
-            y = collect(y)
-        end
-        if isa(z,AbstractRange)
-            z = collect(z)
-        end
         abs(normal_sign) == 1 || throw(ArgumentError("`normal_sign` should be either -1 or +1"))
         m = new{F,I}(
             size(vol)...,
