@@ -76,7 +76,8 @@ struct MC{F,I}
         isa(x, AbstractRange) && (x = collect(x))
         isa(y, AbstractRange) && (y = collect(y))
         isa(z, AbstractRange) && (z = collect(z))
-        abs(normal_sign) == 1 || throw(ArgumentError("`normal_sign` should be either -1 or +1"))
+        abs(normal_sign) == 1 ||
+        throw(ArgumentError("`normal_sign` should be either -1 or +1"))
         m = new{F,I}(
             size(vol)...,
             Ref(vol),
