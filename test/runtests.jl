@@ -187,7 +187,7 @@ end
     msh = MarchingCubes.makemesh(GeometryBasics, mc)
     @test msh isa GeometryBasics.Mesh
     @test length(msh.position) == length(mc.vertices)
-    @test length(msh.normals) == length(mc.normals)
+    @test length(msh.normal) == length(mc.normals)
 
     @test_throws ArgumentError MarchingCubes.makemesh(PlyIO, mc)
 end
