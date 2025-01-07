@@ -1,4 +1,3 @@
-using BenchmarkTools
 using GeometryBasics
 using MarchingCubes
 using Meshes
@@ -191,3 +190,41 @@ end
 
     @test_throws ArgumentError MarchingCubes.makemesh(PlyIO, mc)
 end
+
+@testset "coordinate input variations" begin
+    epsLevel = 1e-3 # Precission level
+
+    # Define coordinate ranges (also creating 3 different lengths)
+    nx, ny, nz = 55, 46, 67 # These should be high enough to reach precission level
+    start_x, stop_x = -1.0, 1.0 # Range limits centered on 0.0
+    start_y, stop_y = -1.2, 1.2 # Range limits centered on 0.0
+    start_z, stop_z = -2.3, 2.3 # Range limits centered on 0.0
+    x = range(start_x, stop_x, length = nx)
+    y = range(start_y, stop_y, length = ny)
+    z = range(start_z, stop_z, length = nz)
+
+    # Create image (simple coordinate norm leading to spherical isosurface)
+    A = [sqrt(x^2 + y^2 + z^2) for x in x, y in y, z in z]
+
+    level = 0.5 # isolevel should produce sphere with this radius
+
+    # Process isosurface with ranged coordinate input
+    mc_ranged = MC(A,Int; x=x, y=y, z=z)
+    march(mc_ranged,level)
+
+    # Process isosurface with vector coordinate input
+    mc_vector = MC(A,Int; x=collect(Float64, x), y=collect(Float64, y), z=collect(Float64, z))
+    march(mc_vector,level)
+
+    # Test equivalence between ranged and vector input
+    @test mc_ranged.vertices == mc_vector.vertices
+    @test mc_ranged.triangles == mc_vector.triangles
+    
+    # Test if coordinate input was used appropriately geometrically as expected    
+    n = length(mc_ranged.vertices)
+    c = sum(mc_ranged.vertices)/n # Mean coordinate i.e. centre 
+    r = sum(v -> sqrt(sum(v.^2)),mc_ranged.vertices)/n # Mean radius     
+    @test isapprox(c,[0.0,0.0,0.0], atol = epsLevel) # Approximately zero mean for sphere     
+    @test isapprox(r, level, atol = epsLevel) # Approximately radius matching level
+end
+
