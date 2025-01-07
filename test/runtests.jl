@@ -209,11 +209,11 @@ end
     level = 0.5 # isolevel should produce sphere with this radius
 
     # Process isosurface with ranged coordinate input
-    mc_ranged = MC(A,Int; x=x, y=y, z=z)
+    mc_ranged = MC(A,Int; x = x, y = y, z = z)
     march(mc_ranged,level)
 
     # Process isosurface with vector coordinate input
-    mc_vector = MC(A,Int; x=collect(Float64, x), y=collect(Float64, y), z=collect(Float64, z))
+    mc_vector = MC(A,Int; x = collect(Float64, x), y = collect(Float64, y), z = collect(Float64, z))
     march(mc_vector,level)
 
     # Test equivalence between ranged and vector input
