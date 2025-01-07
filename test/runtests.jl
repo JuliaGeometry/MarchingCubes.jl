@@ -223,7 +223,7 @@ end
     # Test if coordinate input was used appropriately geometrically as expected    
     n = length(mc_ranged.vertices)
     c = sum(mc_ranged.vertices)/n # Mean coordinate i.e. centre 
-    r = sum(v -> sqrt(sum(v.^2)),mc_ranged.vertices)/n # Mean radius     
+    r = sum(v -> sqrt(sum(v.^2)), mc_ranged.vertices)/n # Mean radius     
     @test isapprox(c,[0.0,0.0,0.0], atol = epsLevel) # Approximately zero mean for sphere     
     @test isapprox(r, level, atol = epsLevel) # Approximately radius matching level
 end
