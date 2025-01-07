@@ -1,4 +1,3 @@
-using BenchmarkTools
 using GeometryBasics
 using MarchingCubes
 using Meshes
@@ -118,14 +117,6 @@ end
     MarchingCubes.output(PlyIO, mc, tempname(); verbose = false)
 end
 
-@testset "types" begin
-    for F ∈ (Float16, Float32, Float64)
-        for I ∈ (Int16, Int32, Int64, Int128, UInt16, UInt32, UInt64, UInt128)
-            @test march(MarchingCubes.scenario(4, 4, 4; F, I)) isa Nothing
-        end
-    end
-end
-
 @testset "normalize" begin
     nx, ny, nz = 10, 20, 30
     start_x, stop_x = -0.1, 0.1
@@ -187,7 +178,54 @@ end
     msh = MarchingCubes.makemesh(GeometryBasics, mc)
     @test msh isa GeometryBasics.Mesh
     @test length(msh.position) == length(mc.vertices)
-    @test length(msh.normals) == length(mc.normals)
+    @test length(msh.normal) == length(mc.normals)
 
     @test_throws ArgumentError MarchingCubes.makemesh(PlyIO, mc)
+end
+
+@testset "coordinate input variations" begin
+    atol = 1e-3  # precision level
+
+    # define coordinate ranges (also creating 3 different lengths)
+    nx, ny, nz = 55, 46, 67  # these should be high enough to reach precision level
+    start_x, stop_x = -1.0, 1.0  # range limits centered on 0
+    start_y, stop_y = -1.2, 1.2  # range limits centered on 0
+    start_z, stop_z = -2.3, 2.3  # range limits centered on 0
+    x = range(start_x, stop_x; length = nx)
+    y = range(start_y, stop_y; length = ny)
+    z = range(start_z, stop_z; length = nz)
+
+    # create image (simple coordinate norm leading to spherical isosurface)
+    A = [√(xi^2 + yi^2 + zi^2) for xi ∈ x, yi ∈ y, zi ∈ z]
+
+    level = 0.5  # isolevel should produce sphere with this radius
+
+    # process isosurface with ranged coordinate input
+    mc_ranged = MC(A, Int; x, y, z)
+    march(mc_ranged, level)
+
+    xv, yv, zv = collect.(Float64, (x, y, z))
+
+    # process isosurface with vector coordinate input
+    mc_vector = MC(A, Int; x = xv, y = yv, z = zv)
+    march(mc_vector, level)
+
+    # test equivalence between ranged and vector input
+    @test mc_ranged.vertices == mc_vector.vertices
+    @test mc_ranged.triangles == mc_vector.triangles
+
+    # test if coordinate input was used appropriately geometrically as expected    
+    n = length(mc_ranged.vertices)
+    c = sum(mc_ranged.vertices) / n  # mean coordinate i.e. center 
+    r = sum(v -> √(sum(abs2, v)), mc_ranged.vertices) / n  # mean radius     
+    @test isapprox(c, zeros(3); atol)  # approximately zero mean for sphere     
+    @test isapprox(r, level; atol)  # approximately radius matching level
+end
+
+@testset "types" begin
+    for F ∈ (Float16, Float32, Float64),
+        I ∈ (Int16, Int32, Int64, Int128, UInt16, UInt32, UInt64, UInt128)
+
+        @test march(MarchingCubes.scenario(4, 4, 4; F, I)) isa Nothing
+    end
 end

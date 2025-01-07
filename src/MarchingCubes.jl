@@ -73,7 +73,11 @@ struct MC{F,I}
         y::AbstractVector{F} = F[],
         z::AbstractVector{F} = F[],
     ) where {F<:AbstractFloat,G<:Integer} = begin
-        abs(normal_sign) == 1 || throw(ArgumentError("`normal_sign` should be either -1 or +1"))
+        isa(x, AbstractRange) && (x = collect(x))
+        isa(y, AbstractRange) && (y = collect(y))
+        isa(z, AbstractRange) && (z = collect(z))
+        abs(normal_sign) == 1 ||
+        throw(ArgumentError("`normal_sign` should be either -1 or +1"))
         m = new{F,I}(
             size(vol)...,
             Ref(vol),
