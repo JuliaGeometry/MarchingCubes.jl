@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
@@ -22,24 +22,16 @@ jobs:
           - '1'
         experimental:
           - false
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         arch: [x64]
-        include:  # spare windows/macos CI credits
-          - os: windows-latest
-            experimental: false
-            version: '1'
-            arch: x64
-          - os: macos-latest
-            experimental: false
-            version: '1'
-            arch: x64
+        include:
           - os: ubuntu-latest
             experimental: true
             version: 'pre'
             arch: x64
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@latest
         with:
           version: ${{ matrix.version }}
@@ -48,7 +40,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
       - uses: julia-actions/julia-processcoverage@latest
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
