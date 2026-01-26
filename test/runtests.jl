@@ -129,7 +129,7 @@ end
         y = collect(Float64, range(start_y, stop_y, length = ny)),
         z = collect(Float64, range(start_z, stop_z, length = nz)),
     )
-    for callable ∈ (march, march_legacy)
+    for callable in (march, march_legacy)
         callable(mc)
         @test all(map(v -> start_x ≤ v[1] ≤ stop_x, mc.vertices))
         @test all(map(v -> start_y ≤ v[2] ≤ stop_y, mc.vertices))
@@ -138,7 +138,7 @@ end
 end
 
 @testset "isovalue" begin
-    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
+    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x in 1:5, y in 1:5, z in 1:5]
 
     m1 = MC(dat)
     march(m1, 5.0)
@@ -152,7 +152,7 @@ end
 end
 
 @testset "invert normals" begin
-    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x ∈ 1:5, y ∈ 1:5, z ∈ 1:5]
+    dat = Float32[(x - 3)^2 + (y - 3)^2 + (z - 3)^2 for x in 1:5, y in 1:5, z in 1:5]
 
     m1 = MC(dat)
     march(m1)
@@ -184,7 +184,7 @@ end
 end
 
 @testset "coordinate input variations" begin
-    atol = 1e-3  # precision level
+    atol = 1.0e-3  # precision level
 
     # define coordinate ranges (also creating 3 different lengths)
     nx, ny, nz = 55, 46, 67  # these should be high enough to reach precision level
@@ -196,7 +196,7 @@ end
     z = range(start_z, stop_z; length = nz)
 
     # create image (simple coordinate norm leading to spherical isosurface)
-    A = [√(xi^2 + yi^2 + zi^2) for xi ∈ x, yi ∈ y, zi ∈ z]
+    A = [√(xi^2 + yi^2 + zi^2) for xi in x, yi in y, zi in z]
 
     level = 0.5  # isolevel should produce sphere with this radius
 
@@ -214,17 +214,17 @@ end
     @test mc_ranged.vertices == mc_vector.vertices
     @test mc_ranged.triangles == mc_vector.triangles
 
-    # test if coordinate input was used appropriately geometrically as expected    
+    # test if coordinate input was used appropriately geometrically as expected
     n = length(mc_ranged.vertices)
-    c = sum(mc_ranged.vertices) / n  # mean coordinate i.e. center 
-    r = sum(v -> √(sum(abs2, v)), mc_ranged.vertices) / n  # mean radius     
-    @test isapprox(c, zeros(3); atol)  # approximately zero mean for sphere     
+    c = sum(mc_ranged.vertices) / n  # mean coordinate i.e. center
+    r = sum(v -> √(sum(abs2, v)), mc_ranged.vertices) / n  # mean radius
+    @test isapprox(c, zeros(3); atol)  # approximately zero mean for sphere
     @test isapprox(r, level; atol)  # approximately radius matching level
 end
 
 @testset "types" begin
-    for F ∈ (Float16, Float32, Float64),
-        I ∈ (Int16, Int32, Int64, Int128, UInt16, UInt32, UInt64, UInt128)
+    for F in (Float16, Float32, Float64),
+            I in (Int16, Int32, Int64, Int128, UInt16, UInt32, UInt64, UInt128)
 
         @test march(MarchingCubes.scenario(4, 4, 4; F, I)) isa Nothing
     end
